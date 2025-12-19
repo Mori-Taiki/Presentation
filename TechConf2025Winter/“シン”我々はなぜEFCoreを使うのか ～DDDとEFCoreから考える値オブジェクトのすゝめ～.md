@@ -4,6 +4,9 @@ header: "“シン”我々はなぜEFCoreを使うのか ～DDDとEFCoreから�
 theme: default
 paginate: true
 style: |
+  section {
+    background-color: #f1f0eb;
+  }
   .columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -42,7 +45,7 @@ style: |
 ### 振り返り
 - EFCoreを利用するのはDB中心から<br>**オブジェクト中心**への移行が目的
 - オブジェクト中心にすることで、<br>より複雑なエンティティの関係性を記述しやすくなる
-- しかし、さらに複雑な業務ロジックが存在するプロダクトでは、エンティティ同士の関係をオブジェクトとして記述するだけでは不十分である
+- しかし、さらに複雑な**業務ロジック**が存在するプロダクトでは、エンティティ同士の関係をオブジェクトとして記述するだけでは不十分である
 </div>
 </div>
 
@@ -60,7 +63,8 @@ BEエンジニア
 ---
 
 # 楽しい仕事
-- 皆さんは、コードを書いているときと、ドキュメントを整理しているとき、どっちが楽しいですか？
+- 皆さんは、コードを書いているときと、ドキュメントを整理しているとき、
+どっちが楽しいですか？
 - 以下のような仕事をしてみたいと思いますか？
     - ほとんどコードをそのまま書き写したようなExcelの設計書を書く、
     細かい体裁（インデントや差分の文字色指定）を指摘されながらメンテする
@@ -96,7 +100,7 @@ BEエンジニア
 
 ### もう一つは…
 未来の悪魔 ↓
-![w:480](mirainoakuma.jpg)
+![w:480](aki.jpg)
 
 レガシーコードに親しんだ私だからこそ
 嫌な未来が想像されるときがあります
@@ -138,6 +142,7 @@ BEエンジニア
 
 でも、面倒な仕事はできるだけ回避したい。
 放置すると、どんどんカオスなコードになる未来が見える…
+![w:480](mirainoakuma.jpg) ←未来の悪魔さん
 
 今日はそんな未来を回避するために、
 エンジニアによるエンジニアのための戦略・戦術をお伝えします。
@@ -150,7 +155,7 @@ BEエンジニア
 
 <div class="midium">
 
-### 課題①：複雑化した（そして名無しの）業務ロジックをコードから読み取ろうとすると認知負荷が高い→仕様のドキュメント化（Wikiや設計書）へ逃げる
+### 課題①：複雑化した（そして名無しの）業務ロジックをコードから読み取ろうとすると認知負荷が高い<br>→仕様のドキュメント化（Wikiや設計書）へ逃げる
 
 - ビジネスの知識を（ドキュメントではなく）コードで雄弁に表現する
     - ドキュメントやコード内コメントはメンテナンスコストが高く、劣化コピーになりがち。
@@ -475,10 +480,8 @@ SQLを内部に隠蔽する
 ### BAD①：業務（ドメイン）上の意味が読み取れないロジック
 
 ```csharp
-var diff = (placedAt - shippedAt).TotalMinutes;
-
 // 120って何？単位は？どのドメインの制約？
-if (diff > 120) throw new Exception("NG");
+if ((placedAt - shippedAt) > 120) throw new Exception("NG");
 ```
 ### BAD②：あちこちに散らばった業務知識
 
@@ -486,20 +489,20 @@ if (diff > 120) throw new Exception("NG");
 // Controller 
 const int LimitMinutes = 120
 // API POST: 120分チェック
-if ((placedAt - shippedAt).TotalMinutes > LimitMinutes) return BadRequest();
+if ((placedAt - shippedAt) > LimitMinutes) return BadRequest();
 ・・・
 
 // API PUT: 120分チェック
-if ((placedAt - shippedAt).TotalMinutes > LimitMinutes) return BadRequest();
+if ((placedAt - shippedAt) > LimitMinutes) return BadRequest();
 ・・・
 
 // API PATCH: 120分チェック
-if ((placedAt - shippedAt).TotalMinutes > LimitMinutes) return BadRequest();
+if ((placedAt - shippedAt) > LimitMinutes) return BadRequest();
 ・・・
 
 // BATCH
 const int LimitMinutes = 120
-status = (placedAt - shippedAt).TotalMinutes <= LimitMinutes? "OK" : "NG";
+status = (placedAt - shippedAt) <= LimitMinutes? "OK" : "NG";
 ・・・
 ```
 </div>
@@ -510,9 +513,9 @@ status = (placedAt - shippedAt).TotalMinutes <= LimitMinutes? "OK" : "NG";
 ### 値オブジェクトを使うことで解決されること
 <div class="small">
 
-### オブジェクトにすることで
-- その値に名前を与えることができる
-- その値に振る舞いを持たせることができる
+### オブジェクトにすることで・・・
+1. その値に名前を与えることができる
+2. その値に振る舞いを持たせることができる
 </div>
 <div class="small">
 
@@ -555,7 +558,8 @@ public sealed class TransportTime
 
 ---
 ### static固執のデメリット
-？「staticな値Helper（値Util）クラスじゃダメなの？」
+？「一か所にチェックロジックをまとめたいなら、
+　　staticな値Helper（値Util）クラスじゃダメなの？」
 - ①メソッド化しても、呼びだされなければ意味が無いので、リスクは残る
 - ②そのロジックが複雑に絡み合い、どんどん複雑化する可能性
     - 凝集レベルでいうと論理的凝集に当たり、7つの凝集度の中で下から２番目
@@ -691,10 +695,9 @@ var delivery = new ConcreteDelivery(
 
 - 逆に、ただEFCoreを使うだけだと、トランザクションスクリプトとアクティブレコードの悪いとこ取りになる
     - レコードは**どこからでも変更**でき、しかも**手続き的に記述**されており、SQLの隠蔽だけが残る
-    - これは貧血ドメインモデルと呼ばれる
+    - これは貧血ドメインモデルと呼ばれるアンチパターンである
+トランザクションスクリプト”と“アクティブレコード”両方の性質を持つ♣️
     ![ヒソカ.jpg](%E3%83%92%E3%82%BD%E3%82%AB.jpg)
-    貧血ドメインモデルは
-    “トランザクションスクリプト”と“アクティブレコード”両方の性質を持つ♣️
 - 値オブジェクトによって、値にまつわるルールがカプセル化され、利用するロジックは宣言的になる
 
 ---
@@ -756,10 +759,11 @@ List<TransportTime> TrancsportTimes // これはそのままだとテーブル�
 
 ### 値オブジェクトとエンティティ
 
-- 値オブジェクト↔エンティティ
-    - 不変↔可変
-    - IDが無い↔IDがある
-        - 値オブジェクトは、値が一緒であれば、同じものであるとみなす
+|値オブジェクト|↔|エンティティ|
+|----|-|----|
+|不変|↔|可変|
+|IDが無い|↔|IDがある|
+- 値オブジェクトは、**値が一緒であれば、同じものである**とみなす
 - エンティティの一部として値オブジェクトがある
     - Complex TypesがListをサポートしていないことについて困った場合、
     それは値オブジェクトではなく、エンティティかも
