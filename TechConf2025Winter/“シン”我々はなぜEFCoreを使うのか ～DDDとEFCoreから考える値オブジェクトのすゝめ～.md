@@ -1,86 +1,154 @@
 ---
 marp: true
+header: "“シン”我々はなぜEFCoreを使うのか ～DDDとEFCoreから考える値オブジェクトのすゝめ～"
+theme: default
+paginate: true
+style: |
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;   
+  }
+  .small {
+    font-size: 16px;
+  } 
+  .midium {
+    font-size: 20px;
+  } 
+  .large {
+    font-size: 26px;
+  } 
 ---
 
 # “シン”我々はなぜEFCoreを使うのか 
 ～DDDとEFCoreから考える値オブジェクトのすゝめ～
 
----
+<div class="columns">
+<div>
 
-## 書籍の紹介
+### この番組は、ご覧の本の影響で、<br>お送りいたします。
+ ![w:250](image.png)  ![w:250](image%201.png) 
 
-この番組は、ご覧の本の影響で、お送りいたします。
+</div>
+<div class="large">
 
-- ドメイン駆動設計をはじめよう
-
-![image.png](image.png)
-
-- 良いコード/悪いコードで学ぶ設計入門
-
-![image.png](image%201.png)
-
-### フロントエンドの方へ
-
-- 関数型ドメインモデリング
-    - DDDの出自が現実世界の業務をオブジェクト指向言語で自然に設計に落とし込むというところにあり、そのため今回の発表はTypeScriptなどの関数型言語では利用しづらい部分があります。
-    - この点、TSなどにおけるDDD実践はこちらの本が参考になりそうです。今回の発表はC#なので少々わかりづらいかもしれませんが、FEエンジニアの方にも役立つ内容になるかと思います。
-    
-    ![image.png](image%202.png)
-    
-
-## 振り返り
-
-- EFCoreを利用するのは、DB中心からオブジェクト中心への移行が目的だった
-- オブジェクト中心にすることで、より複雑なエンティティの関係性を記述しやすくなる
+### 振り返り
+- EFCoreを利用するのはDB中心から<br>**オブジェクト中心**への移行が目的
+- オブジェクト中心にすることで、<br>より複雑なエンティティの関係性を記述しやすくなる
 - しかし、さらに複雑な業務ロジックが存在するプロダクトでは、エンティティ同士の関係をオブジェクトとして記述するだけでは不十分である
+</div>
+</div>
+
+---
+# 自己紹介
+## 森 大樹 （もり　たいき）
+施工管理クラウド①　品質管理クラウド[コンクリート]　福岡オフィス
+### 経歴
+- 新卒で人材派遣の営業：２年半（2020年4月～2022年9月） 
+- SESで3つの現場を経験：２年半（2022年10月～2025年4月）
+言語：Javaメイン　/　フレームワーク：Spring・Seaser2 Backbone.jsなど
+- KENTEMに入社：2025年5月～
+BEエンジニア
 
 ---
 
-# イントロダクション
-
+# 楽しい仕事
 - 皆さんは、コードを書いているときと、ドキュメントを整理しているとき、どっちが楽しいですか？
-- では、以下のような仕事をしてみたいと思いますか？
-    - ほとんどコードをそのまま書き写したようなExcelの設計書を書く、メンテする
+- 以下のような仕事をしてみたいと思いますか？
+    - ほとんどコードをそのまま書き写したようなExcelの設計書を書く、
+    細かい体裁（インデントや差分の文字色指定）を指摘されながらメンテする
     - 影響範囲になりそうなキーワードをGrep検索して書き出し、すべての行に対して変更の要否を書き出してレビュー依頼する。（レビュー依頼される）
     - 変更する予定のソースから、画面の影響箇所までの呼び出しツリーをすべて書き出す。（そして判定条件網羅のE2Eテストを画面から行う。）
 
 ---
+<div class="columns">
+<div class="center">
+<br>
+<br>
+<br>
+<br>
+やりたくないですよね？<br>
+でも、前職では<br>
+つらい仕事ばっかりさせらたので・・・
+</div>
+<div>
 
-やりたくないですよね？そんな仕事ばっかりさせられたら・・・
-![シグマ.jpg](%E3%82%B7%E3%82%B0%E3%83%9E.jpg)
+![h:480](%E3%82%B7%E3%82%B0%E3%83%9E.jpg)
+</div>
+</div>
+
+
+--- 
+<div class="columns">
+<div>
+
+そしてKENTEMにやってきて思ったのは…
+![w:360](%E4%BF%BA%E3%81%AF%E5%BC%B1%E3%81%84.jpg)
+</div>
+<div>
+
+### もう一つは…
+未来の悪魔 ↓
+![w:480](mirainoakuma.jpg)
+
+レガシーコードに親しんだ私だからこそ
+嫌な未来が想像されるときがあります
+
+</div>
+</div>
 
 --- 
 
-開発生産性としてもマイナスすぎます
-![俺は弱い.jpg](%E4%BF%BA%E3%81%AF%E5%BC%B1%E3%81%84.jpg)
-    
+## なぜ面倒な仕事が生まれたか
+
+事業的に成功し、長期に稼働し続けるシステムのコード
+　≒レガシーコードの現場では、たいてい面倒な仕事がつきもの
+<div class="columns" >
+<div class="small">
+
+成功した事業のシステムの特徴
+- 事業が成功すればするほど、事業のルールが次々に変更・追加される
+
+- 成功した事業は長く続き、開発メンバーの入れ替えが必ず発生し、業務ルールの暗黙知が必ず喪失する
+
+- はじめはシンプルな機能でも、局所最適解的にスピードとコスト最小を求めた改修（経営判断としては正しい）を行ううちに、大規模で複雑になっていく
+
+</div>
+<div class="small">
+
+成功した事業のシステム「**開発**」の特徴
+- 複雑化した（そして名無しの）業務ロジックをコードから読み取ろうとすると認知負荷が高い
+→仕様のドキュメント化（Wikiや設計書）
+- 業務ロジックが凝集せず、あちこちに散らばっている
+→変更箇所の漏れが多発し、力業でマネジメントする
+- スピード重視で場当たり的な実装を行ったことで業務ロジックがカオス化
+    →変更の副作用を担保するために、すべての流れをトレースする必要
+</div>
+</div>
+先に述べた面倒な仕事は、極めて合理的なマネジメント戦略であるともいえます
+
 ---
+
+でも、面倒な仕事はできるだけ回避したい。
+放置すると、どんどんカオスなコードになる未来が見える…
 
 今日はそんな未来を回避するために、
 エンジニアによるエンジニアのための戦略・戦術をお伝えします。
 
 --- 
 
-## なぜ面倒な仕事が生まれたか
 
-私の経験上、長期的に事業的に成功しているシステムのコード≒レガシーコードの現場では、たいてい上記のような面倒な仕事がつきものでした。
-- 成功した事業のシステムの特徴
-    - 事業が成功すればするほど、事業のルールが次々に変更・追加される
-    - 成功した事業は長く続き、開発メンバーの入れ替えが必ず発生し、業務ルールの暗黙知が必ず喪失する
-    - はじめはシンプルな機能でも、局所最適解的にスピードとコスト最小を求めた改修（経営判断としては正しい）を行ううちに、大規模で複雑になっていく
-
-その結果、きわめて合理的な判断において先に述べたようなマネジメント戦略にたどり着きます
-- 成功した事業のシステム「開発」の特徴
-    - 複雑化した（そして名無しの）業務ロジックをコードから読み取ろうとすると認知負荷が高い
-    →仕様のドキュメント化（Wikiや設計書）へ逃げる
-    - 業務ロジックが凝集せず、あちこちに散らばっている
-    →変更箇所の漏れが多発し、力業でマネジメントするしかなくなる
-    - 業務の本質を理解せず、場当たり的な実装を行ったためにロジックがカオス化する
-    →変更の副作用を担保するために、すべての流れをトレースする必要がある
-
---- 
 
 ## どのように面倒な仕事を回避できそうか
+
+<div class="midium">
 
 ### 課題①：複雑化した（そして名無しの）業務ロジックをコードから読み取ろうとすると認知負荷が高い→仕様のドキュメント化（Wikiや設計書）へ逃げる
 
@@ -88,8 +156,6 @@ marp: true
     - ドキュメントやコード内コメントはメンテナンスコストが高く、劣化コピーになりがち。
     - コードこそが仕様を表現する唯一の真実です。
 
----
-### 課題①：複雑化した（そして名無しの）業務ロジックをコードから読み取ろうとすると認知負荷が高い→仕様のドキュメント化（Wikiや設計書）へ逃げる
 ### BAD
 
 ```csharp
@@ -100,25 +166,26 @@ if ((placedAt - shippedAt) > 120) throw new Exception("NG");
 ### GOOD
 
 ```csharp
-
 // 配送時間クラスのファクトリメソッド内でチェック
 var time = TransportTime.From(shippedAt, placedAt); // 120分超ならここで失敗（仕様が型にある）
 // 必ず正しい状態のオブジェクトが生成される
 ```
 
+</div>
+
 --- 
 
 ### 課題②：業務ロジックが凝集せず、あちこちに散らばっている
+
 →変更箇所の漏れが多発し、力業でマネジメントするしかなくなる
 
 - 業務のルールを凝集させ、適切にカプセル化する
     - 一つのルールは一つの個所にだけ実装すればよいようにする
     - それ以外の場所からは触らせないように守る
 
----
+<div class="columns">
+<div class="midium">
 
-### 課題②：業務ロジックが凝集せず、あちこちに散らばっている
-→変更箇所の漏れが多発し、力業でマネジメントするしかなくなる
 ### BAD
 
 ```csharp
@@ -134,6 +201,8 @@ if ((placedAt - shippedAt) > 120) return BadRequest();
 status = (placedAt - shippedAt) <= 120 ? "OK" : "NG";
 ・・・
 ```
+</div>
+<div class="midium">
 
 ### GOOD
 
@@ -141,21 +210,29 @@ status = (placedAt - shippedAt) <= 120 ? "OK" : "NG";
 // どのAPIでもBatchでも、TransportTime型を利用する時点でチェックが適用される
 var time = TransportTime.From(shippedAt, placedAt);
 ```
+</div>
+</div>
 
 ---
 
 ### 課題③：業務の本質を理解せず、場当たり的な実装を行ったためにロジックがカオス化する
 →変更の副作用を担保するために、すべての流れをトレースする必要がある
 
-- 偶発的複雑性を排除し、本質的複雑さにのみフォーカスする
-    - 偶発的複雑性：コードの都合で生まれる複雑性（フレームワークの都合が入り込んで複雑になる、非同期の都合が入り込んで複雑になる、説明が十分でない名前のせいで複雑になる）
-        - システムの価値に影響しない複雑性です
-    - 本質的複雑性：システム化の対象とする業務ルールがそもそも複雑
-        - こちらは仕方のないこと（というかシステムの提供する価値そのもの）です
+###  偶発的複雑性を排除し、本質的複雑さにのみフォーカスする
+1. 偶発的複雑性：コードの都合で生まれる複雑性
+    - フレームワークの都合が入り込んで複雑になる、通信の都合で複雑になる
+    説明が十分でない命名のせいで複雑になる
+    - システムの価値に影響しない複雑性です
+    
+2. 本質的複雑性：システム化の対象とする業務ルールがそもそも複雑
+    - こちらは仕方のないこと（というかシステムの提供する価値そのもの）です
 
 ---
 ### 課題③：業務の本質を理解せず、場当たり的な実装を行ったためにロジックがカオス化する
 →変更の副作用を担保するために、すべての流れをトレースする必要がある
+
+<div class="columns" >
+<div class="midium">
 
 ### Bad
 
@@ -173,8 +250,8 @@ public async Task PlaceAsync(Guid id, DateTime placedAt)
     await db.SaveChangesAsync();
 }
 ```
-
----
+</div>
+<div class="midium">
 
 ### Good
 
@@ -202,6 +279,8 @@ modelBuilder.Entity<ConcreteDelivery>()
     .ComplexProperty(x => x.TransportTime, ct =>
         ct.Property(p => p.Minutes).HasColumnName("TransportMinutes"));
 ```
+</div></div>
+
 
 ---
 
@@ -355,10 +434,16 @@ SQLを内部に隠蔽する
     - 商品マスタの登録機能　→　アクティブレコード（シンプルなCRUD機能）
     - 顧客の趣向に合わせた商品のレコメンド機能　→　ドメインモデル（複雑な業務ロジック）
     - 決済機能　→　外部ライブラリ（すでに一般的な解決法が外部に提供されている）
-- 補完的な領域では、業務ルールがシンプルなので、アクティブレコード（トランザクションスクリプト）で十分
+
+---
+
+### アーキテクチャの戦略的選択
+- 補完的な領域では、業務ルールがシンプルなので、
+アクティブレコード（トランザクションスクリプト）で十分
     - ただし、機能開発を繰り返すうちに、複雑になってきたら注意
     - 補完的業務領域が、中核的業務領域に成長することもある
-- ドメインモデルはコストが高いため、**中核的な業務領域**で**複雑さに向き合う**ときにのみ利用する
+- ドメインモデルはコストが高いため、
+**中核的な業務領域**で**複雑さに向き合う**ときにのみ利用する
 
 ---
 
@@ -384,6 +469,8 @@ SQLを内部に隠蔽する
 --- 
 
 ### プリミティブ型に固執するデメリット
+
+<div class="small">
 
 ### BAD①：業務（ドメイン）上の意味が読み取れないロジック
 
@@ -415,14 +502,19 @@ const int LimitMinutes = 120
 status = (placedAt - shippedAt).TotalMinutes <= LimitMinutes? "OK" : "NG";
 ・・・
 ```
+</div>
 
-- こうなるとドキュメントで業務知識を補完するしかなくなる。
+### →こうなるとドキュメントで業務知識を補完するしかなくなる
 
 ---
 ### 値オブジェクトを使うことで解決されること
-オブジェクトにすることで
+<div class="small">
+
+### オブジェクトにすることで
 - その値に名前を与えることができる
 - その値に振る舞いを持たせることができる
+</div>
+<div class="small">
 
 ### GOOD：コードから業務知識が読み取れる
 
@@ -452,6 +544,8 @@ public sealed class TransportTime
         => new((int)Math.Ceiling((placedAt - shippedAt).TotalMinutes));
 }
 ```
+</div>
+
 --- 
 
 - Q1：このような状態をなんという？
@@ -461,10 +555,13 @@ public sealed class TransportTime
 
 ---
 ### static固執のデメリット
-- ？：staticな値Helper（値Util）クラスじゃダメなの？
-    - ①メソッド化しても、呼びだされなければ意味が無いので、リスクは残る
-    - ②そのロジックが複雑に絡み合い、どんどん複雑化する可能性
-        - 凝集レベルでいうと論理的凝集に当たり、7つの凝集度の中で下から２番目
+？「staticな値Helper（値Util）クラスじゃダメなの？」
+- ①メソッド化しても、呼びだされなければ意味が無いので、リスクは残る
+- ②そのロジックが複雑に絡み合い、どんどん複雑化する可能性
+    - 凝集レベルでいうと論理的凝集に当たり、7つの凝集度の中で下から２番目
+
+
+---
 
 ### BAD①：呼び忘れる
 
@@ -486,6 +583,8 @@ e.TransportMinutes = (int)(placedAt - e.ShippedAt).TotalMinutes;
 e.TransportMinutes = (int)(placedAt - e.ShippedAt).TotalMinutes;
 ```
 
+---
+
 ### BAD②：論理的凝集に陥る
 
 ```csharp
@@ -503,9 +602,10 @@ public static class DeliveryRules
 
 ---
 
-## 値オブジェクトで書かれたロジック
+##  Q：どちらが複雑？：値オブジェクトで書かれたロジック
 
-- Q：どちらが複雑？
+<div class="columns" >
+<div class="midium">
 
 ### BAD：3つの自由な値
 
@@ -514,20 +614,23 @@ public sealed class DeliveryBad
 {
     public DateTime ShippedAt { get; init; }
     public DateTime PlacedAt  { get; init; }
-    public int ElapsedMinutes { get; init; } // ←これも自由に入れられてしまう
+    public int ElapsedMinutes { get; init; } // ←自由な値
 
     public bool IsWithin120()
-        => ElapsedMinutes <= 120; // でも ShippedAt/PlacedAt と一致する保証がない
+        => ElapsedMinutes <= 120; 
 }
 
 var bad = new DeliveryBad
 {
     ShippedAt = new DateTime(2025, 12, 16,  9,  0, 0),
-    PlacedAt  = new DateTime(2025, 12, 16, 12,  0, 0),//12-9で3時間（180分）
-    ElapsedMinutes = 120　// 時間差は180分なのに ElapsedMinutes=120 が入ってしまう（嘘の状態）
+    PlacedAt  = new DateTime(2025, 12, 16, 12,  0, 0),//180分
+    ElapsedMinutes = 120　// （嘘の状態）
+    // 時間差は180分なのに ElapsedMinutes=120 が入ってしまう
 
 };
 ```
+</div>
+<div class="midium">
 
 ### GOOD：2つの値と１つの計算される値
 
@@ -536,33 +639,34 @@ public sealed class ConcreteDelivery
 {
     public DateTime ShippedAt { get; }
     public DateTime PlacedAt  { get; }
-
-    public ConcreteDelivery(DateTime shippedAt, DateTime placedAt)
-    {
-        if (placedAt < shippedAt) throw new ArgumentException("打設時刻は出荷時刻以降である必要があります。");
-        ShippedAt = shippedAt;
-        PlacedAt  = placedAt;
-    }
-
     // “かかった時間”は状態として持たない。常に計算される。
     public TimeSpan TransportDuration => PlacedAt - ShippedAt;
 
-    public void EnsureWithin120Minutes()
+    public ConcreteDelivery(DateTime shippedAt, DateTime placedAt)
     {
+        if (placedAt < shippedAt) 
+            throw new ArgumentException
+                ("打設時刻は出荷時刻以降である必要があります");
+        ShippedAt = shippedAt;
+        PlacedAt  = placedAt;
+
         if (TransportDuration > TimeSpan.FromMinutes(120))
-            throw new InvalidOperationException("運搬時間は120分以内でなければなりません。");
+            throw new InvalidOperationException
+                ("運搬時間は120分以内でなければなりません");
     }
 }
 
-// 利用例
+// 利用例（不正値を生成しようとすると例外発生）
 var delivery = new ConcreteDelivery(
     shippedAt: new DateTime(2025, 12, 16,  9,  0, 0),
     placedAt:  new DateTime(2025, 12, 16, 10, 10, 0)
 );
 
-delivery.EnsureWithin120Minutes();
-
 ```
+
+</div>
+</div>
+
 
 ---
 
@@ -716,6 +820,10 @@ public class TransportCheckpoint // Entity (履歴の1件)
 
 ---
 
+<div class="columns" >
+<div class="midium">
+
+エンティティ
 ```csharp
 public readonly record struct QualificationId(string Value);
 
@@ -740,6 +848,9 @@ public sealed class Engineer
         => _qualifications.RemoveAll(x => x.QualificationId == qualificationId);
 }
 ```
+
+紐づきを表現する値オブジェクト
+
 ``` csharp
 // “エンジニアと資格の紐づき”だけを表す値オブジェクト（追加情報なしの中間テーブル）
 public sealed class EngineerQualification
@@ -758,8 +869,11 @@ public sealed class QualificationMaster
 }
 
 ```
+
+</div>
+<div class="midium">
     
-- DbContextの定義
+DbContextの定義
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -798,6 +912,8 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 }
 
 ```
+</div>
+</div>
 
 ---
     
@@ -829,6 +945,8 @@ DB上はエンティティであるものをOwned Manyを用いて値オブジ�
     
 ### BAD：違うものを同じところに押し込める
 
+<div class="midium">
+
 ```csharp
 public enum EmailUsage { Billing, Community }
 
@@ -847,10 +965,13 @@ public sealed record Email(string Value, EmailUsage Usage)
 }
 
 ```
+</div>
 
 ---
 
 ### GOOD：区切られた文脈によって、モジュールを分割する
+
+<div class="midium">
 
 ```csharp
 namespace Billing; // 請求（Billing）という区切られた文脈
@@ -876,13 +997,16 @@ public sealed record Email(string Value)
 }
 
 ```
+</div>
 
 --- 
 
-- 注意：形容詞をつけて区別すると、同じ言葉ではなくなる
-    - 業務エキスパートは、いちいち「請求の」「コミュニティの」アドレスと言うか？
+### 注意：形容詞をつけて区別すると、同じ言葉ではなくなる
+- 業務エキスパートは、いちいち「請求の」「コミュニティの」アドレスと言うか？
 
 ### Warning：形容詞で区別してしまう
+
+<div class="midium">
 
 ```csharp
 public sealed record BillingEmail(string Value)
@@ -902,6 +1026,7 @@ public sealed record CommunityEmail(string Value)
 }
 
 ```
+</div>
 
 ---
 ## 値オブジェクトまとめ
