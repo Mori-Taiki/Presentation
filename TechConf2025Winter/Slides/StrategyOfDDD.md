@@ -162,7 +162,7 @@ style: |
 ---
 # アーキテクチャの戦略的選択
 
-![alt text](image-2.png)
+![](DDDstrategy.png)
 
 ---
 
