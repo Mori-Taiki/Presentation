@@ -29,15 +29,22 @@ style: |
     font-size: 26px;
   } 
 ---
+
+# 閑話休題
+好きな漫画とかコメントしてください
+
 ---
 
 # ドメイン駆動開発の戦術
 
-- では複雑で独自性の高い分野はどのように実装すべきか→ドメインモデル
-- ドメインモデルの実装には理解すべき前提が多い
+- 複雑で独自性の高い分野はどのように実装すべきか→ドメインモデル
+- しかし、ドメインモデルの実装には理解すべき前提が多い
 (ユビキタス言語・区切られた文脈・集約・エンティティ・値オブジェクト...)
-- さらに理解が浅いまま単に真似するだけでは、むしろ複雑性を持ち込むだけに終わりそう
 - まずは、いつでも使える値オブジェクトから始めよう
+
+---
+
+# 値オブジェクトを使って、<br>エンティティに**振る舞い**を持たせる
 
 ---
 
@@ -136,13 +143,70 @@ public sealed class TransportTime
     - 逆にチェックロジックがあちこちに散らばっている状態を低凝集という
 
 ---
-### static固執のデメリット
-？「一か所にチェックロジックをまとめたいなら、
-　　staticな値Helper（値Util）クラスじゃダメなの？」
+
+<div class="columns" >
+<div class="midium">
+
+# static固執のデメリット
+## ？「一か所にチェックロジックをまとめたいなら、staticな値Helper（値Util）クラスじゃダメなの？」
+
 - ①メソッド化しても、呼びだされなければ意味が無いので、リスクは残る
 - ②そのロジックが複雑に絡み合い、どんどん複雑化する可能性
-    - 凝集レベルでいうと論理的凝集に当たり、7つの凝集度の中で下から２番目
+    - 凝集レベルでいうと論理的凝集に当たり、
+    7つの凝集度の中で下から２番目
 
+</div>
+<div class="midium">
+
+``` csharp
+public static class ConcretePlacementHelper
+{
+    public static void Post(
+        ConcretePlacementDto dto,
+        ConcreteDbContext db)
+    {
+        Validate(dto);
+
+        EnsureWithinAllowedTime(dto);
+
+        var entity = new ConcretePlacement
+        {
+            DeliveryTime = dto.DeliveryTime,
+            PlacementTime = dto.PlacementTime,
+            Volume = dto.Volume
+        };
+
+        db.ConcretePlacements.Add(entity);
+        db.SaveChanges();
+    }
+
+    // RESTの公開メソッド群
+    // PUT GET など
+
+    // ---- 以下、ドメインロジック ----
+
+    private static void Validate(ConcretePlacementDto dto)
+    {
+        if (dto.Volume <= 0)
+        {
+            throw new InvalidOperationException("数量は正の値である必要があります");
+        }
+    }
+
+    private static void EnsureWithinAllowedTime(ConcretePlacementDto dto)
+    {
+        var duration = dto.PlacementTime - dto.DeliveryTime;
+
+        if (duration > TimeSpan.FromHours(2))
+        {
+            throw new InvalidOperationException("打設時間超過です");
+        }
+    }
+}
+```
+
+</div>
+</div>
 
 ---
 
@@ -273,10 +337,11 @@ var delivery = new ConcreteDelivery(
 
 
 - 逆に、ただEFCoreを使うだけだと、トランザクションスクリプトとアクティブレコードの悪いとこ取りになる
-    - レコードは**どこからでも変更**でき、しかも**手続き的に記述**されており、SQLの隠蔽だけが残る
-    - これは貧血ドメインモデルと呼ばれ、
+    - レコードは**どこからでも変更**でき、ドメインロジックと**密結合**している
+    しかも**手続き的に記述**されており、SQLの隠蔽だけが残る
+    - これは**貧血ドメインモデル**と呼ばれ、
 「"トランザクションスクリプト”と“アクティブレコード”両方の性質を持つ」　アンチパターンである
-    ![ヒソカ.jpg](%E3%83%92%E3%82%BD%E3%82%AB.jpg)
+    ![hisoka.jpg](hisoka.jpg)
 - 値オブジェクトによって、値にまつわるルールがカプセル化される
 
 ---
@@ -314,6 +379,8 @@ public sealed class TransportTime
 ```
 - おまじないはあるが、EFCoreへのパッケージ依存はしていない
 
+---
+
 ### Step2 Complex TypeとしてFluent APIでDBに結び付ける
 - コンクリートの配送(ConcreteDelivery)というエンティティの中に、
     配送時間(TranceportTime)がある場合の例
@@ -323,6 +390,8 @@ modelBuilder.Entity<ConcreteDelivery>()
     .ComplexProperty(x => x.TransportTime, ct =>
         ct.Property(p => p.Minutes).HasColumnName("TransportMinutes"));
 ```
+![alt text](image-11.png)
+
 
 ---
 
@@ -619,5 +688,3 @@ public sealed record CommunityEmail(string Value)
 - プリミティブ値に固執せず、**型**の情報と**振る舞い**を与え、
 業務上意味のある概念として表現する
 - 業務上の言葉を**モデル化**する行為ともいえる
-
----

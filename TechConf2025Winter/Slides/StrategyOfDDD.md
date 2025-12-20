@@ -113,7 +113,7 @@ style: |
 <div >
 
 ![alt text](image-4.png)
-![alt text](image-8.png)
+![alt text](image-6.png)
 </div>
 </div>
 
@@ -157,11 +157,12 @@ style: |
 
 # アーキテクチャの位置付け
 
-## トランザクションスクリプト/アクティブレコード
+## トランザクションスクリプト
 
-1. トランザクションスクリプト：エンドポイント～永続化までを**すべて手続き的**に記述する
-2. アクティブレコード：１レコードを１オブジェクトとして表現し、
-SQLを内部に隠蔽する
+1. トランザクションスクリプト：
+エンドポイント～永続化までを**すべて手続き的**に記述する
+2. アクティブレコード：
+１レコードを１オブジェクトとして表現し、SQLを内部に隠蔽する
 
 - トランザクションスクリプト（もしくはアクティブレコード）で
 業務ロジックを実装すると外部の複雑さが持ち込まれる
@@ -223,4 +224,179 @@ SQLを内部に隠蔽する
 - ドメインモデルはコストが高いため、
 # **中核的な業務領域**で<br>**複雑さに向き合う**ときにのみ利用する
 
+---
+
+<div class="columns" >
+<div class="midium">
+
+# よく見る実装
+
+## テーブル定義を行うエンティティ
+
+``` csharp
+public class ConcretePlacement
+{
+    public int Id { get; set; }
+
+    public DateTime DeliveryTime { get; set; }
+    public DateTime PlacementTime { get; set; }
+    public decimal Volume { get; set; }
+}
+```
+
+
+
+</div>
+<div>
+
+**Controller**また**Service**から呼ばれるクラス
+``` csharp
+public static class ConcretePlacementHelper
+{
+    public static void Post(
+        ConcretePlacementDto dto,
+        ConcreteDbContext db)
+    {
+        Validate(dto);
+
+        EnsureWithinAllowedTime(dto);
+
+        var entity = new ConcretePlacement
+        {
+            DeliveryTime = dto.DeliveryTime,
+            PlacementTime = dto.PlacementTime,
+            Volume = dto.Volume
+        };
+
+        db.ConcretePlacements.Add(entity);
+        db.SaveChanges();
+    }
+
+    // RESTの公開メソッド群
+    // PUT GET など
+
+    // ---- 以下、ドメインロジック ----
+
+    private static void Validate(ConcretePlacementDto dto)
+    {
+        if (dto.Volume <= 0)
+        {
+            throw new InvalidOperationException("数量は正の値である必要があります");
+        }
+    }
+
+    private static void EnsureWithinAllowedTime(ConcretePlacementDto dto)
+    {
+        var duration = dto.PlacementTime - dto.DeliveryTime;
+
+        if (duration > TimeSpan.FromHours(2))
+        {
+            throw new InvalidOperationException("打設時間超過です");
+        }
+    }
+}
+```
+--- 
+<div class="columns" >
+<div>
+<br>
+<br>
+<br>
+
+# これ、<br>**アンチパターン**です
+
+# **貧血**ドメインモデル
+``` csharp
+public class ConcretePlacement
+{
+    public int Id { get; set; }
+
+    public DateTime DeliveryTime { get; set; }
+    public DateTime PlacementTime { get; set; }
+    public decimal Volume { get; set; }
+}
+```
+
+</div><div>
+
+![alt text](image-9.png)
+</div>
+</div>
+
+--- 
+
+<div class="columns" >
+<div class="midium">
+
+# 貧血ドメインモデル
+
+# **振る舞い**を持たないエンティティ
+
+``` csharp
+public class ConcretePlacement
+{
+    public int Id { get; set; }
+
+    public DateTime DeliveryTime { get; set; }
+    public DateTime PlacementTime { get; set; }
+    public decimal Volume { get; set; }
+}
+```
+- 振る舞いを持たないので処理が手続き的
+- 業務ロジックとDBの処理が密結合している
+  
+![alt text](hisoka.jpg)
+
+</div>
+<div>
+
+``` csharp
+public static class ConcretePlacementHelper
+{
+    public static void Post(
+        ConcretePlacementDto dto,
+        ConcreteDbContext db)
+    {
+        Validate(dto);
+
+        EnsureWithinAllowedTime(dto);
+
+        var entity = new ConcretePlacement
+        {
+            DeliveryTime = dto.DeliveryTime,
+            PlacementTime = dto.PlacementTime,
+            Volume = dto.Volume
+        };
+
+        db.ConcretePlacements.Add(entity);
+        db.SaveChanges();
+    }
+
+    // RESTの公開メソッド群
+    // PUT GET など
+
+    // ---- 以下、ドメインロジック ----
+
+    private static void Validate(ConcretePlacementDto dto)
+    {
+        if (dto.Volume <= 0)
+        {
+            throw new InvalidOperationException("数量は正の値である必要があります");
+        }
+    }
+
+    private static void EnsureWithinAllowedTime(ConcretePlacementDto dto)
+    {
+        var duration = dto.PlacementTime - dto.DeliveryTime;
+
+        if (duration > TimeSpan.FromHours(2))
+        {
+            throw new InvalidOperationException("打設時間超過です");
+        }
+    }
+}
+```
+
+</div>
+</div>
 
