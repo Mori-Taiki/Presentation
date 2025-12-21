@@ -113,7 +113,7 @@ status = (placedAt - shippedAt) <= LimitMinutes? "OK" : "NG";
 var time = TransportTime.From(shippedAt, placedAt); // 120分超ならここで失敗（仕様が型にある）
 
 // 定義
-public sealed class TransportTime
+public sealed record class TransportTime
 {
     public int Minutes { get; private set; }
     public const int LimitMinutes = 120;
@@ -257,7 +257,7 @@ public static class DeliveryRules
 ### BAD：3つの自由な値
 
 ```csharp
-public sealed class DeliveryBad
+public sealed record class DeliveryBad
 {
     public DateTime ShippedAt { get; init; }
     public DateTime PlacedAt  { get; init; }
@@ -282,7 +282,7 @@ var bad = new DeliveryBad
 ### GOOD：2つの値と１つの計算される値
 
 ```csharp
-public sealed class ConcreteDelivery
+public sealed record class ConcreteDelivery
 {
     public DateTime ShippedAt { get; }
     public DateTime PlacedAt  { get; }
@@ -357,7 +357,7 @@ var delivery = new ConcreteDelivery(
 ### Complex Typesを利用して、値オブジェクトをマッピングする
 ### Step1 POCOで値オブジェクトを書く
 ```csharp
-public sealed class TransportTime
+public sealed record class TransportTime
 {
     public int Minutes { get; private set; }
     public const int LimitMinutes = 120;
@@ -505,7 +505,7 @@ public sealed class Engineer
 
 ``` csharp
 // “エンジニアと資格の紐づき”だけを表す値オブジェクト（追加情報なしの中間テーブル）
-public sealed class EngineerQualification
+public sealed record class EngineerQualification
 {
     public QualificationId QualificationId { get; private set; }
 
