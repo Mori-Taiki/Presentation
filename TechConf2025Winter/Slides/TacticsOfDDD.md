@@ -30,11 +30,6 @@ style: |
   } 
 ---
 
-# 閑話休題
-好きな漫画とかコメントしてください
-
----
-
 # ドメイン駆動開発の戦術
 
 - 複雑で独自性の高い分野はどのように実装すべきか→ドメインモデル
@@ -48,14 +43,18 @@ style: |
 
 ---
 
-## 値オブジェクト
-### 値オブジェクトの原則
-- **識別子を持たず**、**値そのものに意味があり**、**不変である**ことを前提に扱うオブジェクト
-- 例：お金をintで扱わずに、intのプロパティを持つ Money型として扱う
-    - 交換可能性：1000円という値は、どの1000円札でも良い
-     ＝ 識別子を持たない
-    - 同一性：ある1000円札と、他の1000円札はイコールであるとみなせる
-    - 不変性：1000円から100円引くときに、1000円札そのものを変更せず、900円を新たに作り出す
+# 値オブジェクトの原則
+**識別子を持たず**、**値そのものに意味があり**、**不変である**
+ことを前提に扱うオブジェクト
+  - **交換可能性**：1000円という値は、どの1000円札でも良い
+    → 識別子（ID）を持たない
+  - **同一性**：ある1000円札と、他の1000円札はイコールであるとみなせる
+    → 参照比較ではなく値の比較
+  - **不変性**：1000円から100円引くときに、1000円札そのものを変更せず、
+  900円を新たに作り出す
+  → Immutableなインスタンスにする
+
+# C#の場合：**record** classで実装すれば原則を満たす
 
 --- 
 
@@ -150,10 +149,10 @@ public sealed record class TransportTime
 # static固執のデメリット
 ## ？「一か所にチェックロジックをまとめたいなら、staticな値Helper（値Util）クラスじゃダメなの？」
 
-- ①メソッド化しても、呼びだされなければ意味が無いので、リスクは残る
-- ②そのロジックが複雑に絡み合い、どんどん複雑化する可能性
-    - 凝集レベルでいうと論理的凝集に当たり、
-    7つの凝集度の中で下から２番目
+## ①：メソッド化しても、呼びだされなければ意味が無いので、リスクは残る
+## ②：そのロジックが複雑に絡み合い、どんどん複雑化する可能性
+  - 凝集レベルでいうと論理的凝集に当たり、
+  7つの凝集度の中で下から２番目
 
 </div>
 <div class="midium">
@@ -328,29 +327,99 @@ var delivery = new ConcreteDelivery(
 
 ## 翻って、EFCoreとは何だったか
 
-- DBの都合を隠蔽し、文字列のSQLではなく、「オブジェクト」を中心とするものであった
-    - ①オブジェクト中心であることで、レコード同士の関連を表現しやすくなる
-    - ②(New)オブジェクト中心であることで、複雑な「業務ロジック」を表現（モデル化）しやすくなる
+DBの都合を隠蔽し、文字列のSQLではなく、「オブジェクト」を中心とするものであった
+  - オブジェクト中心であることで、レコード同士の関連を表現しやすくなる
+  - (**New**)オブジェクト中心であることで、複雑な「**業務ロジック**」を
+  **値オブジェトの振る舞い**として表現しやすくなる
 
-- 中核的領域では、業務ロジックは「本質的に複雑」であるため、オブジェクトを中心にする必要がある(DBを抽象化する)
+## 中核的領域では、業務ロジックは「本質的に複雑」であるため、オブジェクトを中心にすることのメリットが大きい
+  
+--- 
+
+<div class="columns" >
+<div class="midium">
+
+# 貧血ドメインモデル
+
+ただEFCoreを使うだけだと、トランザクションスクリプトとアクティブレコードの悪いとこ取りになる
+
+``` csharp
+public class ConcretePlacement
+{
+    public int Id { get; set; }
+
+    public DateTime DeliveryTime { get; set; }
+    public DateTime PlacementTime { get; set; }
+    public decimal Volume { get; set; }
+}
+```
+- 手続き的処理を抜け出せていない
+- トランザクションスクリプトとアクティブレコードの
+中間のようなコーディング
+![](hisoka.jpg)
+</div>
+<div>
+
+``` csharp
+public static class ConcretePlacementHelper
+{
+    public static void Post(
+        ConcretePlacementDto dto,
+        ConcreteDbContext db)
+    {
+        Validate(dto);
+
+        EnsureWithinAllowedTime(dto);
+
+        var entity = new ConcretePlacement
+        {
+            DeliveryTime = dto.DeliveryTime,
+            PlacementTime = dto.PlacementTime,
+            Volume = dto.Volume
+        };
+
+        db.ConcretePlacements.Add(entity);
+        db.SaveChanges();
+    }
+
+    // RESTの公開メソッド群
+    // PUT GET など
+
+    // ---- 以下、ドメインロジック ----
+
+    private static void Validate(ConcretePlacementDto dto)
+    {
+        if (dto.Volume <= 0)
+        {
+            throw new InvalidOperationException("数量は正の値である必要があります");
+        }
+    }
+
+    private static void EnsureWithinAllowedTime(ConcretePlacementDto dto)
+    {
+        var duration = dto.PlacementTime - dto.DeliveryTime;
+
+        if (duration > TimeSpan.FromHours(2))
+        {
+            throw new InvalidOperationException("打設時間超過です");
+        }
+    }
+}
+```
+
+</div>
+</div>
+
+
 ---
 
+# **Complex Type**とFluent APIで<br>値オブジェクトをDBカラムに紐づける
 
-- 逆に、ただEFCoreを使うだけだと、トランザクションスクリプトとアクティブレコードの悪いとこ取りになる
-    - レコードは**どこからでも変更**でき、ドメインロジックと**密結合**している
-    しかも**手続き的に記述**されており、SQLの隠蔽だけが残る
-    - これは**貧血ドメインモデル**と呼ばれ、
-「"トランザクションスクリプト”と“アクティブレコード”両方の性質を持つ」　アンチパターンである
-    ![hisoka.jpg](hisoka.jpg)
-- 値オブジェクトによって、値にまつわるルールがカプセル化される
-
----
-
-## Complex TypesとFluent APIで値オブジェクトをDBカラムに紐づける
-
-- 値オブジェクトはPOCOである必要があり、フレームワークに依存させてはいけない
+- 値オブジェクトはPOCOである必要があり、
+フレームワーク（EFCore）に依存させてはいけない
     - EFCoreに依存させると、結局DBの複雑性を持ち込ませることになるから
-- POCOの値オブジェクトをどうやってDBに紐づけるのか？ マッパーの独自実装が必要？→その必要は無い
+- POCOの値オブジェクトをどうやってDBに紐づけるのか？ 
+マッパーの独自実装が必要？→その必要は無い
 
 ---
 
