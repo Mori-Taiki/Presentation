@@ -1,6 +1,6 @@
 ---
 marp: true
-header: "“シン”我々はなぜEFCoreを使うのか ～DDDとEFCoreから考える値オブジェクトのすゝめ～"
+header: "“シン”我々はなぜEFCoreを使うのか ～ドメイン駆動設計とEFCoreから考える値オブジェクトのすゝめ～"
 theme: default
 paginate: true
 style: |
@@ -31,7 +31,7 @@ style: |
 ---
 
 # “シン”我々はなぜEFCoreを使うのか 
-～DDDとEFCoreから考える値オブジェクトのすゝめ～
+～ドメイン駆動設計とEFCoreから考える値オブジェクトのすゝめ～
 
 <div class="columns">
 <div>

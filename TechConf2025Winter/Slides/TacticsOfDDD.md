@@ -156,7 +156,7 @@ public sealed record class TransportTime
             // ルールは一か所に凝集する
         if (minutes < 0) throw new ArgumentOutOfRangeException(nameof(minutes));
         if (minutes > LimitMinutes) throw new InvalidOperationException($"運搬時間は{LimitMinutes}分以内。");
-        // もし夏季は60分以内で運搬する、というルールが発生した場合、このクラスにまとめる
+        // もし夏季は90分以内で運搬する、というルールが発生した場合、このクラスにまとめる
         Minutes = minutes; // 常に不正ではない値だけが初期化される
     }
 
@@ -475,7 +475,7 @@ public sealed record class TransportTime
         // ルールは一か所に凝集する
         if (minutes < 0) throw new ArgumentOutOfRangeException(nameof(minutes));
         if (minutes > LimitMinutes) throw new InvalidOperationException($"運搬時間は{LimitMinutes}分以内。");
-        // もし夏季は60分以内で運搬する、というルールが発生した場合、このクラスにまとめる
+        // もし夏季は90分以内で運搬する、というルールが発生した場合、このクラスにまとめる
         Minutes = minutes; // 常に不正ではない値だけが初期化される
     }
 

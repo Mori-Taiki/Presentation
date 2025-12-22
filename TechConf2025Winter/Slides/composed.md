@@ -1,6 +1,6 @@
 ---
 marp: true
-header: "“シン”我々はなぜEFCoreを使うのか ～DDDとEFCoreから考える値オブジェクトのすゝめ～"
+header: "“シン”我々はなぜEFCoreを使うのか ～ドメイン駆動設計とEFCoreから考える値オブジェクトのすゝめ～"
 theme: default
 paginate: true
 style: |
@@ -31,7 +31,7 @@ style: |
 ---
 
 # “シン”我々はなぜEFCoreを使うのか 
-～DDDとEFCoreから考える値オブジェクトのすゝめ～
+～ドメイン駆動設計とEFCoreから考える値オブジェクトのすゝめ～
 
 <div class="columns">
 <div>
@@ -327,13 +327,13 @@ modelBuilder.Entity<ConcreteDelivery>()
 ## この業務はどの領域か
 
 - Q1-1：あなたは高級料理店の支配人です。
-マトリクスの中に業務を振り分けてください
+**中核的**業務領域に当てはまるのはどれ？
     - A：食材の下ごしらえ
     - B：複雑な給与計算　
     - C：創造的なレシピ開発
 
 ## この業務は誰がやるか
-- Q1-2：それぞれの業務領域について、
+- Q1-2：**中核的**業務領域について、
 あなたはどんなリソースで解決しますか？
     - A：見習いの新人
     - B：外部の人材（税理士）
@@ -362,14 +362,14 @@ modelBuilder.Entity<ConcreteDelivery>()
 
 ## この機能はどの領域か
 - Q2-1：あなたはECサイトAppのアーキテクトです。
-以下の業務をマトリクスの中に振り分けてください
+**補完的**業務領域に当たりそうなのはどれ？
     - A：商品マスタの登録機能
     - B：顧客の趣向に合わせた商品のレコメンド機能
     - C：決済機能
 
 ## この機能をどんなリソースで解決するか
 
-- Q2-2：それぞれの業務領域について、
+- Q2-2：**補完的**業務領域について、
 あなたはどんなリソースで解決しますか？
     - A：若手の新人
     - B：エースエンジニア
@@ -779,7 +779,7 @@ public sealed record class TransportTime
             // ルールは一か所に凝集する
         if (minutes < 0) throw new ArgumentOutOfRangeException(nameof(minutes));
         if (minutes > LimitMinutes) throw new InvalidOperationException($"運搬時間は{LimitMinutes}分以内。");
-        // もし夏季は60分以内で運搬する、というルールが発生した場合、このクラスにまとめる
+        // もし夏季は90分以内で運搬する、というルールが発生した場合、このクラスにまとめる
         Minutes = minutes; // 常に不正ではない値だけが初期化される
     }
 
@@ -1098,7 +1098,7 @@ public sealed record class TransportTime
         // ルールは一か所に凝集する
         if (minutes < 0) throw new ArgumentOutOfRangeException(nameof(minutes));
         if (minutes > LimitMinutes) throw new InvalidOperationException($"運搬時間は{LimitMinutes}分以内。");
-        // もし夏季は60分以内で運搬する、というルールが発生した場合、このクラスにまとめる
+        // もし夏季は90分以内で運搬する、というルールが発生した場合、このクラスにまとめる
         Minutes = minutes; // 常に不正ではない値だけが初期化される
     }
 
@@ -1309,7 +1309,7 @@ DB上はエンティティであるものをOwned Manyを用いて値オブジ�
 
 ### 良い名前を付ける
 - 良い名前とは・・・？
-- DDDは**業務**の複雑さに向き合うものである
+- ドメイン駆動設計は**業務**の複雑さに向き合うものである
     - 業務エキスパートと**同じ言葉**を使う（ユビキタス言語）
 ### 同じ言葉（ユビキタス言語）
 - 業務エキスパートと、開発と、電話サポートと・・・
