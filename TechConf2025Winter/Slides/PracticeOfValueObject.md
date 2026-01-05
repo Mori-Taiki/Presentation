@@ -1,0 +1,428 @@
+---
+marp: true
+header: "EFCoreで値オブジェクトを実践する"
+theme: default
+paginate: true
+style: |
+  section {
+    background-color: #f1f0eb;
+  }
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;   
+  }
+  .small {
+    font-size: 16px;
+  } 
+  .midium {
+    font-size: 20px;
+  } 
+  .large {
+    font-size: 26px;
+  } 
+---
+
+# EFCoreで実践するドメインモデル
+～Fluent APIを上手く使って値オブジェクトの実践をしたい（願望）編～
+<div class="columns">
+<div>
+
+### この番組は、ご覧の本の影響で、<br>お送りいたします。
+ ![w:250](../image.png)  ![w:250](../image%201.png) 
+
+</div>
+<div class="large">
+
+### 振り返り
+- **複雑**で他社との**差別化**につながる領域 <br>= **中核的業務領域**においては、<br>**ドメインモデル**という設計パターンが推奨
+- 業務ロジックがシンプルな領域<br>= **補完的業務領域**においては、<br>**トランザクションスクリプト**も許容される
+- **中核的業務領域**にもかかわらず、EFCoreでトランザクションスクリプトをやるのは、**貧血ドメインモデル**と呼ばれる<br>**アンチパターン**である
+</div>
+</div>
+
+---
+## 業務ロジックの**複雑さ**と競合との**差別化**で業務領域を区分けする
+
+![alt text](image-5.png)
+
+---
+
+### ３つのアーキテクチャの特徴
+
+![](architecture.png)
+
+
+--- 
+
+<div class="columns" >
+<div class="midium">
+
+# 貧血ドメインモデル
+
+# **振る舞い**を持たないエンティティ
+
+``` csharp
+public class ConcretePlacement
+{
+    public int Id { get; set; }
+
+    public DateTime DeliveryTime { get; set; }
+    public DateTime PlacementTime { get; set; }
+    public decimal Volume { get; set; }
+}
+```
+- レコードをオブジェクトにしてはいるが、
+**手続き的処理**を抜け出せていない
+- モデルは**貧血**・処理は**トランザクションスクリプト**
+- 振る舞いを持つ、とはそのモデルが持つ**不変条件**<br>（業務上の**ルール**）をモデル内部に**カプセル化**すること
+
+</div>
+<div class="small">
+
+### トランザクションスクリプトでは、**複雑さ**に向き合えない
+``` csharp
+public static class ConcretePlacementHelper
+{
+    public static void Post(
+        ConcretePlacementDto dto,
+        ConcreteDbContext db)
+    {
+        Validate(dto);
+
+        EnsureWithinAllowedTime(dto);
+
+        var entity = new ConcretePlacement
+        {
+            DeliveryTime = dto.DeliveryTime,
+            PlacementTime = dto.PlacementTime,
+            Volume = dto.Volume
+        };
+
+        db.ConcretePlacements.Add(entity);
+        db.SaveChanges();
+    }
+
+    // RESTの公開メソッド群
+    // PUT GET など
+
+    // ---- 以下、ドメインロジック ----
+
+    private static void Validate(ConcretePlacementDto dto)
+    {
+        if (dto.Volume <= 0)
+        {
+            throw new InvalidOperationException("数量は正の値である必要があります");
+        }
+    }
+
+    private static void EnsureWithinAllowedTime(ConcretePlacementDto dto)
+    {
+        var duration = dto.PlacementTime - dto.DeliveryTime;
+
+        if (duration > TimeSpan.FromHours(2))
+        {
+            throw new InvalidOperationException("打設時間超過です");
+        }
+    }
+}
+```
+
+</div>
+</div>
+
+---
+
+# という話をしていたら・・・
+# EFCoreをなぜ使うのか、という内容なのに、<br>EFCoreの話がほとんどできませんでした。
+# 「タイトル詐欺だ」、というお叱りや<br>「もっとゆっくり聞きたかった」というコメントを<br>**真に受けて**、恥ずかしげもなく出てまいりました。
+
+--- 
+
+# 実際にやってみた
+
+<div class="columns" >
+<div>
+
+## 「配信時間」という**値**について
+## **１時間単位でしか設定できない**というルールを値オブジェクトで表現してみたい
+</div>
+<div class="midium">
+
+![alt text](image-23.png)
+
+</div>
+</div>
+
+---
+# ①PUTに定義されたValidationを削除する
+staticで定義されたValidationロジックは**低凝集**を引き起こし、**呼び忘れのリスク**がある
+
+``` csharp
+public static AlertMailSettingModel Put(QualityControlDbContext context, Guid kojiId, AlertMailSettingProperties properties)
+{
+    var normalizedRecipients = (properties.RecipientUserIds ?? []).Distinct().OrderBy(id => id).ToArray();
+
+    // ValidateInput(properties); 消す
+
+    TestScheduleAlertSettingHelper.Put(context, kojiId, properties.TestSchedule ?? new());
+    TemperatureAlertSettingHelper.Put(context, kojiId, properties.Temperature ?? new());
+    MailRecipientSyncPut(context, kojiId, normalizedRecipients);
+
+    return properties.ToModel(kojiId, normalizedRecipients);
+}
+```
+
+---
+# ②値オブジェクトにルールをカプセル化する
+``` csharp
+public readonly record struct TestScheduleAlertSendTime
+{
+    public TimeSpan Value { get; }
+
+    /// コンストラクタは直公開しない
+    private TestScheduleAlertSendTime(TimeSpan value)
+    {
+        Validate(value);
+        Value = value;
+    }
+
+    /// 公開するファクトリメソッド
+    public static TestScheduleAlertSendTime From(TimeSpan value) => new(value);
+
+    /// <summary>
+    /// 1時間刻み（分秒が0）であることを検証します。
+    /// </summary>
+    public static void Validate(TimeSpan value)
+    {
+        // 既存仕様：分秒は0固定（1時間刻みのみ許可）
+        if (value.Minutes != 0 || value.Seconds != 0)
+            throw new InvalidDataException($"試験日アラートメールの配信時間（{value}）は1時間間隔で入力してください。");
+    }
+}
+
+```
+---
+# ③プリミティブ型を値オブジェクトに書き換える
+``` csharp
+/// <summary>試験予定アラート設定明細</summary>
+[Table(nameof(TestScheduleAlertSettingDetail))]
+public class TestScheduleAlertSettingDetail : EditableBase
+{
+    /// <summary>明細ID</summary>
+    [Key]
+    public Guid Id { get; set; }
+
+    ・・・
+
+    // <summary>配信時間</summary>
+    // [Column(TypeName = "time")] 
+    // public TimeSpan SendTime { get; set; } = TimeSpan.Zero; 
+
+    /// <summary>配信時間</summary>
+    public TestScheduleAlertSendTime SendTime { get; set; } = TestScheduleAlertSendTime.From(TimeSpan.Zero);
+
+}
+```
+
+---
+# ④Fluent APIで値とオブジェクトを結びつける
+
+``` csharp
+modelBuilder.Entity<TestScheduleAlertSettingDetail>()
+    .Property(q => q.SendTime)
+    .HasConversion(
+        new ValueConverter<TestScheduleAlertSendTime, TimeSpan>(
+            v => v.Value,
+            v => TestScheduleAlertSendTime.From(v)))
+    .HasColumnType("time");
+```
+
+# すみません、単一プロパティの値オブジェクトの場合<br>**ComplexType**より**HasConversion**の方が適切でした
+
+---
+
+# ComplexType vs HasConversion
+## ComplexType
+- **複数のプロパティ**を持つ値オブジェクトをテーブルにフラットに結びつけるとき
+    - 例：住所、氏名など
+- 内部のプロパティを**KeyやIndexとして利用ができない** ←かなりきつい
+- 複数（コレクション）をサポートしていない　←**後述**
+- 全体Nullがサポートされていない（プロパティの一部NullはEFCore10でサポート）
+
+## HasConversion
+- 単一のプロパティを値オブジェクトにするとき
+- KeyやIndexとして利用**可能**
+
+---
+## 先ほどの例は、インデックスが張られていたのでHasConversionにすることが必須でした。
+``` csharp
+modelBuilder.Entity<TestScheduleAlertSettingDetail>()
+    .HasIndex(q => new { q.KojiId, q.SendTime })
+    .HasDatabaseName("IX_TestScheduleAlertSettingDetail_KojiId_SendTime");
+
+modelBuilder.Entity<TestScheduleAlertSettingDetail>()
+    .Property(q => q.SendTime)
+    .HasConversion(
+        new ValueConverter<TestScheduleAlertSendTime, TimeSpan>(
+            v => v.Value,
+            v => TestScheduleAlertSendTime.From(v)))
+    .HasColumnType("time");
+```
+
+---
+## ComplexTypeがコレクションをサポートしていない問題
+そもそも、**複数あるのに区別しなくてよいのか**（ID不要でよいか）
+IDがあるなら値オブジェクトではなく、**エンティティ**
+
+|値オブジェクト|↔|エンティティ|
+|----|-|----|
+|不変|↔|可変|
+|IDが無い|↔|IDがある|
+- 値オブジェクトは、**値が一緒であれば、同じものである**とみなす
+- エンティティの一部として値オブジェクトがある
+    - Complex TypesがListをサポートしていないことについて困った場合、
+    それは値オブジェクトではなく、エンティティかも
+
+--- 
+
+
+### OwnsManyを利用して、中間テーブルを値オブジェクトとみなす
+
+- どうしても値オブジェクトのリストを持つべきだと思われるとき
+    - Listの中身が**重複せず**、**値が同じなら同じものであるとみなせる**もの
+    - 例）中間テーブルを介してマスタを参照するようなテーブル構造のもの
+- 例えば：記事に対するタグ、エンジニアに対する資格一覧など
+    - 「エンジニア」が持つ「資格」の例
+    - IDという値を持つ値オブジェクトだと考えられる
+
+---
+
+<div class="columns" >
+<div class="midium">
+
+エンティティ
+```csharp
+public readonly record struct QualificationId(string Value);
+
+public sealed class Engineer
+{
+    public Guid Id { get; private set; }
+
+    private readonly List<EngineerQualification> _qualifications = new();
+    public IReadOnlyCollection<EngineerQualification> Qualifications => _qualifications;
+
+    private Engineer() { } // EF
+
+    public Engineer(Guid id) => Id = id;
+
+    public void AddQualification(QualificationId qualificationId)
+    {
+        if (_qualifications.Any(x => x.QualificationId == qualificationId)) return;
+        _qualifications.Add(new EngineerQualification(qualificationId));
+    }
+
+    public void RemoveQualification(QualificationId qualificationId)
+        => _qualifications.RemoveAll(x => x.QualificationId == qualificationId);
+}
+```
+
+紐づきを表現する値オブジェクト
+
+``` csharp
+// “エンジニアと資格の紐づき”だけを表す値オブジェクト（追加情報なしの中間テーブル）
+public sealed record class EngineerQualification
+{
+    public QualificationId QualificationId { get; private set; }
+
+    private EngineerQualification() { } // EF
+    public EngineerQualification(QualificationId qualificationId) => QualificationId = qualificationId;
+}
+
+// 資格情報マスタ
+public sealed class QualificationMaster
+{
+    public string Id { get; private set; } = default!; // 例: "基本情報", "応用情報"
+    public string Name { get; private set; } = default!;
+}
+
+```
+
+</div>
+<div class="midium">
+    
+DbContextの定義
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.Entity<Engineer>(b =>
+    {
+        b.HasKey(x => x.Id);
+
+        b.OwnsMany(x => x.Qualifications, q =>
+        {
+            q.ToTable("EngineerQualifications");      // ← 中間テーブル
+            q.WithOwner().HasForeignKey("EngineerId");
+
+            // 値オブジェクトの中身を1列にマップ
+            q.OwnsOne(x => x.QualificationId, id =>
+            {
+                id.Property(p => p.Value)
+                    .HasColumnName("QualificationId")
+                    .IsRequired();
+            });
+
+            // 中間テーブルなので複合キーにする（永続化上のキーであって、ドメインIDではない）
+            q.HasKey("EngineerId", "QualificationId");
+
+            // 同一エンジニア内での重複防止にもなる
+        });
+    });
+
+    modelBuilder.Entity<QualificationMaster>(b =>
+    {
+        b.ToTable("QualificationMasters");
+        b.HasKey(x => x.Id);
+    });
+}
+
+```
+</div>
+</div>
+
+---
+    
+## DB上は**エンティティ**であるものを<br>Owned Manyを用いて**値オブジェクト**として定義可能
+この値オブジェクトに振る舞いを持たせることはあまりないかもしれないが…
+- 他のプロパティが値オブジェクトになっているときに一貫性が出る
+- 集約的にうれしい（集約ルートからしか制御させない、トランザクションの境界）
+
+---
+
+# ところで何をしてるんだっけ？
+EFCoreが提供する、**HasConversion/ComplexType/OwnsMany**といった機能を利用し
+DBスキーマでもあるエンティティに**そのまま**振る舞いを持たせ
+**ドメインモデル化**する手法を模索
+
+---
+
+# ３つの世界
+### 公開インターフェースとしてのDTO
+### ドメインモデル
+### 永続化モデル
+
+--- 
+# まとめ
+EFCoreを利用する場合、
+
+---
