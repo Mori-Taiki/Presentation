@@ -219,18 +219,21 @@ IDがあるなら値オブジェクトではなく、**エンティティ**
 
 --- 
 
-
-## OwnsManyを利用して、**中間テーブルを値オブジェクトとみなす**
-
-どうしても値オブジェクトのリストを持つべきだと思われるとき
+# どうしても値オブジェクトのコレクションを持つべきだと思われるとき
 - コレクションの中身が**重複せず**、**値が同じなら同じものであるとみなせる**もの
     - 例）中間テーブルを介してマスタテーブルを参照する
     - 例）キーだけを保持し、外部サービスに問い合わせを行うもの
-- 具体的には、記事に対するタグ、エンジニアに対する資格一覧、外部サービスで管理される社員ID一覧など
-    - 「エンジニア」が持つ「資格」の例
-    - IDという値を持つ値オブジェクトだと考えられる
-
+- 具体的には
+  - 記事に対するタグ
+  - エンジニアに対する資格一覧
+  - 外部サービスで管理される社員ID一覧
+  
 ---
+
+# 値オブジェクトのコレクション（中間テーブル）
+
+- 「エンジニア」が持つ「資格ID」の例
+- IDという**値**を持つ値オブジェクトだと考えられる
 
 <div class="columns" >
 <div class="midium">
@@ -261,6 +264,8 @@ public sealed class Engineer
 }
 ```
 
+</div>
+<div class="midium">
 紐づきを表現する値オブジェクト
 
 ``` csharp
@@ -280,54 +285,46 @@ public sealed class QualificationMaster
     public string Name { get; private set; } = default!;
 }
 
-```
+```    
 
-</div>
-<div class="midium">
-    
-DbContextの定義
-
-```csharp
-using Microsoft.EntityFrameworkCore;
-
-protected override void OnModelCreating(ModelBuilder modelBuilder)
-{
-    modelBuilder.Entity<Engineer>(b =>
-    {
-        b.HasKey(x => x.Id);
-
-        b.OwnsMany(x => x.Qualifications, q =>
-        {
-            q.ToTable("EngineerQualifications");      // ← 中間テーブル
-            q.WithOwner().HasForeignKey("EngineerId");
-
-            // 値オブジェクトの中身を1列にマップ
-            q.OwnsOne(x => x.QualificationId, id =>
-            {
-                id.Property(p => p.Value)
-                    .HasColumnName("QualificationId")
-                    .IsRequired();
-            });
-
-            // 中間テーブルなので複合キーにする（永続化上のキーであって、ドメインIDではない）
-            q.HasKey("EngineerId", "QualificationId");
-
-            // 同一エンジニア内での重複防止にもなる
-        });
-    });
-
-    modelBuilder.Entity<QualificationMaster>(b =>
-    {
-        b.ToTable("QualificationMasters");
-        b.HasKey(x => x.Id);
-    });
-}
-
-```
 </div>
 </div>
 
 ---
+
+## OwnsManyを利用して、**中間テーブルを値オブジェクトとみなす**
+``` csharp
+modelBuilder.Entity<Engineer>(b =>
+{
+    b.HasKey(x => x.Id);
+
+    b.OwnsMany(x => x.Qualifications, q =>
+    {
+        q.ToTable("EngineerQualifications");      // ← 中間テーブル
+        q.WithOwner().HasForeignKey("EngineerId");
+
+        // 値オブジェクトの中身を1列にマップ
+        q.OwnsOne(x => x.QualificationId, id =>
+        {
+            id.Property(p => p.Value)
+                .HasColumnName("QualificationId")
+                .IsRequired();
+        });
+
+        // 中間テーブルなので複合キーにする（永続化上のキーであって、ドメインIDではない）
+        q.HasKey("EngineerId", "QualificationId");
+    });
+});
+
+```
+
+---
+
+# FluentAPIの使い分け
+FluentAPIの各種メソッドを上手く利用して、値オブジェクトをDBにマッピング
+- **HasConversion**:単一のプロパティを持つ値オブジェクト
+- **ComplexType**：複数のプロパティを持つ値オブジェクト
+- **OwnsMany**:エンティティに複数所有される値オブジェクト
 
 # ところで何をしてるんだっけ？
 EFCoreが提供する、**HasConversion/ComplexType/OwnsMany**といった機能を利用し
