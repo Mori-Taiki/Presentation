@@ -56,83 +56,14 @@ style: |
 </div>
 
 ---
+# TechConfにて「シン：なぜ我々はEFCoreを使うのか」
+## ご好評の声いただき本当にありがとうございました！
+皆様のお声
+- もっと長く聞きたかった。
+- 実践例のPRが見たい
+- **EFCoreの話あんまりしてなくない？**
 
-<div class="columns" >
-<div class="midium">
-
-# 貧血ドメインモデル
-
-# **振る舞い**を持たないエンティティ
-
-``` csharp
-public class ConcretePlacement
-{
-    public int Id { get; set; }
-
-    public DateTime DeliveryTime { get; set; }
-    public DateTime PlacementTime { get; set; }
-    public decimal Volume { get; set; }
-}
-```
-- レコードをオブジェクトにしてはいるが、
-**手続き的処理**を抜け出せていない
-- モデルは**貧血**・処理は**トランザクションスクリプト**
-- 振る舞いを持つ、とはそのモデルが持つ**不変条件**<br>（業務上の**ルール**）をモデル内部に**カプセル化**すること
-
-</div>
-<div class="small">
-
-### トランザクションスクリプトでは、**複雑さ**に向き合えない
-``` csharp
-public static class ConcretePlacementHelper
-{
-    public static void Post(
-        ConcretePlacementDto dto,
-        ConcreteDbContext db)
-    {
-        Validate(dto);
-
-        EnsureWithinAllowedTime(dto);
-
-        var entity = new ConcretePlacement
-        {
-            DeliveryTime = dto.DeliveryTime,
-            PlacementTime = dto.PlacementTime,
-            Volume = dto.Volume
-        };
-
-        db.ConcretePlacements.Add(entity);
-        db.SaveChanges();
-    }
-
-    // RESTの公開メソッド群
-    // PUT GET など
-
-    // ---- 以下、ドメインロジック ----
-
-    private static void Validate(ConcretePlacementDto dto)
-    {
-        if (dto.Volume <= 0)
-        {
-            throw new InvalidOperationException("数量は正の値である必要があります");
-        }
-    }
-
-    private static void EnsureWithinAllowedTime(ConcretePlacementDto dto)
-    {
-        var duration = dto.PlacementTime - dto.DeliveryTime;
-
-        if (duration > TimeSpan.FromHours(2))
-        {
-            throw new InvalidOperationException("打設時間超過です");
-        }
-    }
-}
-```
-
-</div>
-</div>
-
+# はい、タイトル詐欺でした。すみません・・・
 
 --- 
 
@@ -143,6 +74,9 @@ public static class ConcretePlacementHelper
 
 ## 「配信時間」という**値**について
 ## **１時間単位でしか設定できない**というルールを値オブジェクトで表現してみたい
+
+### ※プルリクエスト公開中
+
 </div>
 <div class="midium">
 
@@ -234,6 +168,7 @@ modelBuilder.Entity<TestScheduleAlertSettingDetail>()
             v => TestScheduleAlertSendTime.From(v)))
     .HasColumnType("time");
 ```
+あれ…TechConfでは**ComplexType**って言ってなかった…？
 
 # すみません、単一プロパティの値オブジェクトの場合<br>**ComplexType**より**HasConversion**の方が適切でした
 
@@ -247,12 +182,13 @@ modelBuilder.Entity<TestScheduleAlertSettingDetail>()
 - 複数（コレクション）をサポートしていない　←**後述**
 - 全体Nullがサポートされていない（プロパティの一部NullはEFCore10でサポート）
 
-## HasConversion
+## **HasConversion**
 - **単一のプロパティ**を値オブジェクトにするとき
 - KeyやIndexとして利用**可能**
 
 ---
-## 先ほどの例は、インデックスが張られていたのでHasConversionにすることが必須でした。
+## ComplexTypeは内部プロパティを**KeyやIndexとして利用できない**
+先ほどの例は、インデックスが張られていたのでHasConversionにすることが必須でした。
 ``` csharp
 modelBuilder.Entity<TestScheduleAlertSettingDetail>()
     .HasIndex(q => new { q.KojiId, q.SendTime })
@@ -405,8 +341,11 @@ DBスキーマでもあるエンティティに**そのまま**振る舞いを�
 <div>
 
 ### ・APIモデル
+公開するインターフェース
 ### ・ドメインモデル
+不変条件をカプセル化
 ### ・永続化モデル
+DBのスキーマ
 
 </div>
 <div>
@@ -414,16 +353,14 @@ DBスキーマでもあるエンティティに**そのまま**振る舞いを�
 ![alt text](image-24.png)
 </div>
 </div>
-ドメインの純粋さを求めると、モデルが３つ必要になり、管理コストが膨らむ
 
-→ 適切なバランスでドメインモデルを実装したい
-
+### ドメインの純粋さを求めると、モデルが３つ必要になり、管理コストが膨らむ
 
 ---
 
 # FluentAPIが何をやってくれているか
 
-### 値オブジェクトを内包する**ドメインモデル**を、**永続化モデル**としてそのまま利用するための各種機能をサポート
+### 値オブジェクトを内包する**ドメインモデル**を、<br>**永続化モデル**としてそのまま利用するための各種機能をサポート
 
 ![alt text](image-27.png)
 
