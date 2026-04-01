@@ -103,7 +103,11 @@ draw.io 図を作成するためのスキル。カスタムアイコンを使用
 ### SVG → Base64 変換
 
 ```bash
+# Linux/macOS
 cat skills/drawio/icons/azure-blob-storage.svg | python3 -c "import sys, base64; print(base64.b64encode(sys.stdin.buffer.read()).decode())"
+
+# Windows（CLAUDE.md の Python 環境を使用）
+# PYTHONUTF8=1 .venv/Scripts/python.exe -c "import sys, base64; data=open('skills/drawio/icons/azure-blob-storage.svg','rb').read(); print(base64.b64encode(data).decode())"
 ```
 
 ### style 属性でのアイコン指定
@@ -141,7 +145,7 @@ PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIg
 #### azure-sql-database.svg
 
 ```
-PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij4KICA8IS0tIEF6dXJlIFNRTCBEYXRhYmFzZTogY3lsaW5kZXIgd2l0aCBTUUwgbGFiZWwgLS0+CiAgPGVsbGlwc2UgY3g9IjI0IiBjeT0iMTIiIHJ4PSIxNiIgcnk9IjYiIGZpbGw9IiM1MEU2RkYiLz4KICA8cmVjdCB4PSI4IiB5PSIxMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjI0IiBmaWxsPSIjMDA3OEQ0Ii8+CiAgPGVsbGlwc2UgY3g9IjI0IiBjeT0iMzYiIHJ4PSIxNiIgcnk9IjYiIGZpbGw9IiMwMDVBOUUiLz4KICA8ZWxsaXBzZSBjeD0iMjQiIGN5PSIxMiIgcng9IjE2IiByeT0iNiIgZmlsbD0iIzUwRTZGRiIvPgogIDx0ZXh0IHg9IjI0IiB5PSIyOCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjEwIiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI2ZmZiI+U1FMPC90ZXh0Pgo8L3N2Zz4K
+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij4KICA8IS0tIEF6dXJlIFNRTCBEYXRhYmFzZTogY3lsaW5kZXIgd2l0aCBTUUwgbGFiZWwgLS0+CiAgPHJlY3QgeD0iOCIgeT0iMTIiIHdpZHRoPSIzMiIgaGVpZ2h0PSIyNCIgZmlsbD0iIzAwNzhENCIvPgogIDxlbGxpcHNlIGN4PSIyNCIgY3k9IjM2IiByeD0iMTYiIHJ5PSI2IiBmaWxsPSIjMDA1QTlFIi8+CiAgPGVsbGlwc2UgY3g9IjI0IiBjeT0iMTIiIHJ4PSIxNiIgcnk9IjYiIGZpbGw9IiM1MEU2RkYiLz4KICA8dGV4dCB4PSIyNCIgeT0iMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmYiPlNRTDwvdGV4dD4KPC9zdmc+Cg==
 ```
 
 #### github.svg
