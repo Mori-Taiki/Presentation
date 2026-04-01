@@ -115,3 +115,14 @@ PYTHONUTF8=1 $PYTHON -m markitdown output.pptx
   <p:txBody>...<a:t>サブタイトル / 発表者名</a:t>...</p:txBody>
 </p:sp>
 ```
+
+---
+
+## draw.io スキル
+
+詳細は `skills/drawio/SKILL.md` を参照。
+
+- draw.io 図を作成するためのスキル（`.drawio` ファイルは XML ベース）
+- カスタム SVG アイコンを `skills/drawio/icons/` に格納
+- アイコン一覧: Azure（Blob Storage, App Service, Functions, SQL Database）、GitHub、GitHub Actions、Growi、人間、AI エージェント
+- アイコンは Base64 エンコードして draw.io の `style="shape=image;image=data:image/svg+xml,{BASE64};"` で埋め込む
