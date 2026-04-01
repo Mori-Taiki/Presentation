@@ -2,29 +2,34 @@
 
 ## 概要
 
-draw.io 図を作成するためのスキル。カスタムアイコンを使用してアーキテクチャ図やフロー図を作成する。
+draw.io 図を作成するためのスキル。draw.io 組み込みの Azure シェイプライブラリとカスタムアイコンを使用してアーキテクチャ図やフロー図を作成する。
 
 - `.drawio` ファイルは XML ベースのフォーマット
-- カスタム SVG アイコンを `shape=image` スタイルで埋め込み可能
+- Azure リソースは draw.io 組み込みの Azure シェイプライブラリ（`img/lib/azure2/`）を使用
+- その他のアイコンはカスタム SVG を `shape=image` スタイルで埋め込み
 - 出力した `.drawio` ファイルは draw.io（diagrams.net）で開いて編集・エクスポートできる
 
 ---
 
 ## アイコンライブラリ
 
-アイコンファイルは `skills/drawio/icons/` に格納。
+### Azure リソース（組み込みシェイプライブラリ）
 
-### Azure リソース
+draw.io の Azure シェイプライブラリ（`img/lib/azure2/`）を使用する。Base64 埋め込み不要。
 
-| アイコン | ファイル | 用途 |
-|----------|----------|------|
-| Azure | `azure.svg` | Azure 全般 |
-| Blob Storage | `azure-blob-storage.svg` | Azure Blob Storage（画像ストレージ等） |
-| App Service | `azure-app-service.svg` | Azure App Service |
-| Functions | `azure-functions.svg` | Azure Functions（サーバーレス） |
-| SQL Database | `azure-sql-database.svg` | Azure SQL Database |
+| アイコン | シェイプパス | 用途 |
+|----------|-------------|------|
+| Storage Accounts | `img/lib/azure2/storage/Storage_Accounts.svg` | Azure Blob Storage（画像ストレージ等） |
+| App Service | `img/lib/azure2/app_services/App_Services.svg` | Azure App Service |
+| Function Apps | `img/lib/azure2/compute/Function_Apps.svg` | Azure Functions（サーバーレス） |
+| SQL Database | `img/lib/azure2/databases/SQL_Database.svg` | Azure SQL Database |
 
-### 開発ツール
+> **その他の Azure アイコンを探す:** draw.io エディタで「More Shapes → Networking → Azure」を有効化すると、カテゴリ別に全アイコンが表示される。パスは `img/lib/azure2/{カテゴリ}/{アイコン名}.svg` の形式。
+> 主なカテゴリ: `compute`, `databases`, `storage`, `networking`, `app_services`, `containers`, `security`, `identity`, `general` 等
+
+### 開発ツール（カスタム SVG）
+
+カスタムアイコンファイルは `skills/drawio/icons/` に格納。
 
 | アイコン | ファイル | 用途 |
 |----------|----------|------|
@@ -32,7 +37,7 @@ draw.io 図を作成するためのスキル。カスタムアイコンを使用
 | GitHub Actions | `github-actions.svg` | GitHub Actions（CI/CD） |
 | Growi | `growi.svg` | Growi Wiki |
 
-### 人物・AI
+### 人物・AI（カスタム SVG）
 
 | アイコン | ファイル | 用途 |
 |----------|----------|------|
@@ -84,10 +89,26 @@ draw.io 図を作成するためのスキル。カスタムアイコンを使用
 </mxCell>
 ```
 
-#### カスタムアイコン（SVG 画像）
+#### Azure 組み込みシェイプ
+
+draw.io の Azure シェイプライブラリを使用する場合、`image=img/lib/azure2/...` でパスを指定する。Base64 変換不要。
 
 ```xml
-<mxCell id="5" value="Azure Blob Storage"
+<mxCell id="5" value="Azure Storage"
+        style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;
+               verticalAlign=top;aspect=fixed;imageAspect=0;
+               image=img/lib/azure2/storage/Storage_Accounts.svg;"
+        vertex="1" parent="1">
+  <mxGeometry x="200" y="100" width="48" height="48" as="geometry" />
+</mxCell>
+```
+
+#### カスタムアイコン（SVG 画像）
+
+Azure 以外のアイコンはカスタム SVG を Base64 エンコードして埋め込む。
+
+```xml
+<mxCell id="6" value="GitHub"
         style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;
                verticalAlign=top;aspect=fixed;imageAspect=0;
                image=data:image/svg+xml,BASE64_ENCODED_SVG;"
@@ -98,55 +119,50 @@ draw.io 図を作成するためのスキル。カスタムアイコンを使用
 
 ---
 
-## アイコンの埋め込み方法
+## アイコンの使い方
 
-### SVG → Base64 変換
+### Azure リソース（組み込みシェイプ）
+
+style 属性の `image=` に `img/lib/azure2/` パスを指定するだけで利用可能。
+
+```
+style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=img/lib/azure2/{カテゴリ}/{アイコン名}.svg;"
+```
+
+よく使う Azure シェイプパスの一覧:
+
+| リソース | シェイプパス |
+|----------|-------------|
+| Storage Accounts | `img/lib/azure2/storage/Storage_Accounts.svg` |
+| App Service | `img/lib/azure2/app_services/App_Services.svg` |
+| Function Apps | `img/lib/azure2/compute/Function_Apps.svg` |
+| SQL Database | `img/lib/azure2/databases/SQL_Database.svg` |
+| Virtual Machine | `img/lib/azure2/compute/Virtual_Machine.svg` |
+| Kubernetes | `img/lib/azure2/compute/Kubernetes_Services.svg` |
+| Cosmos DB | `img/lib/azure2/databases/Azure_Cosmos_DB.svg` |
+| API Management | `img/lib/azure2/app_services/API_Management_Services.svg` |
+
+### カスタムアイコン（SVG → Base64 埋め込み）
+
+Azure 以外のアイコンは従来通り Base64 エンコードして埋め込む。
+
+#### SVG → Base64 変換
 
 ```bash
 # Linux/macOS
-cat skills/drawio/icons/azure-blob-storage.svg | python3 -c "import sys, base64; print(base64.b64encode(sys.stdin.buffer.read()).decode())"
+cat skills/drawio/icons/github.svg | python3 -c "import sys, base64; print(base64.b64encode(sys.stdin.buffer.read()).decode())"
 
 # Windows（CLAUDE.md の Python 環境を使用）
-# PYTHONUTF8=1 .venv/Scripts/python.exe -c "import sys, base64; data=open('skills/drawio/icons/azure-blob-storage.svg','rb').read(); print(base64.b64encode(data).decode())"
+# PYTHONUTF8=1 .venv/Scripts/python.exe -c "import sys, base64; data=open('skills/drawio/icons/github.svg','rb').read(); print(base64.b64encode(data).decode())"
 ```
 
-### style 属性でのアイコン指定
+#### style 属性でのカスタムアイコン指定
 
 ```
 style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,{BASE64};"
 ```
 
-### 各アイコンの Base64 エンコード済みデータ
-
-#### azure.svg
-
-```
-PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij4KICA8IS0tIEF6dXJlIGxvZ286IHNpbXBsaWZpZWQgZGlhbW9uZCBzaGFwZSAtLT4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYXp1cmVHcmFkIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzAwNzhENCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDVBOUUiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxwYXRoIGQ9Ik0xMyA2IEwyOCA2IEwzNSAyNCBMMjIgNDIgTDcgNDIgTDIwIDI0IFoiIGZpbGw9InVybCgjYXp1cmVHcmFkKSIvPgogIDxwYXRoIGQ9Ik0yNSAxNCBMNDEgNDIgTDMwIDQyIEwzNSAyNCBaIiBmaWxsPSIjNTBFNkZGIiBvcGFjaXR5PSIwLjgiLz4KPC9zdmc+Cg==
-```
-
-#### azure-blob-storage.svg
-
-```
-PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij4KICA8IS0tIEF6dXJlIEJsb2IgU3RvcmFnZTogc3RvcmFnZSBjb250YWluZXIgd2l0aCBkYXRhIGJsb2NrcyAtLT4KICA8cmVjdCB4PSI4IiB5PSI2IiB3aWR0aD0iMzIiIGhlaWdodD0iMzYiIHJ4PSIzIiByeT0iMyIgZmlsbD0iIzAwNzhENCIvPgogIDxyZWN0IHg9IjEyIiB5PSIxMSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjciIHJ4PSIxIiBmaWxsPSIjNTBFNkZGIi8+CiAgPHJlY3QgeD0iMjYiIHk9IjExIiB3aWR0aD0iMTAiIGhlaWdodD0iNyIgcng9IjEiIGZpbGw9IiM1MEU2RkYiLz4KICA8cmVjdCB4PSIxMiIgeT0iMjIiIHdpZHRoPSIxMCIgaGVpZ2h0PSI3IiByeD0iMSIgZmlsbD0iIzUwRTZGRiIvPgogIDxyZWN0IHg9IjI2IiB5PSIyMiIgd2lkdGg9IjEwIiBoZWlnaHQ9IjciIHJ4PSIxIiBmaWxsPSIjNTBFNkZGIi8+CiAgPHJlY3QgeD0iMTIiIHk9IjMzIiB3aWR0aD0iMTAiIGhlaWdodD0iNSIgcng9IjEiIGZpbGw9IiM1MEU2RkYiIG9wYWNpdHk9IjAuNiIvPgo8L3N2Zz4K
-```
-
-#### azure-app-service.svg
-
-```
-PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij4KICA8IS0tIEF6dXJlIEFwcCBTZXJ2aWNlOiBjbG91ZCB3aXRoIGdlYXIgLS0+CiAgPHBhdGggZD0iTTEyIDMyIEM1IDMyIDIgMjYgNiAyMSBDNCAxNCAxMCA5IDE3IDEwIEMxOSA1IDI3IDMgMzMgNyBDMzkgNCA0NiA5IDQ0IDE3IEM0OCAyMSA0NiAyOCA0MCAzMCBDNDIgMzQgMzggMzYgMzMgMzYgTDE1IDM2IEMxMyAzNiAxMiAzNCAxMiAzMiBaIiBmaWxsPSIjMDA3OEQ0Ii8+CiAgPGNpcmNsZSBjeD0iMjQiIGN5PSIyMiIgcj0iNyIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8Y2lyY2xlIGN4PSIyNCIgY3k9IjIyIiByPSIyIiBmaWxsPSIjZmZmIi8+CiAgPGxpbmUgeDE9IjI0IiB5MT0iMTUiIHgyPSIyNCIgeTI9IjE3IiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgogIDxsaW5lIHgxPSIyNCIgeTE9IjI3IiB4Mj0iMjQiIHkyPSIyOSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjIiLz4KICA8bGluZSB4MT0iMTciIHkxPSIyMiIgeDI9IjE5IiB5Mj0iMjIiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgPGxpbmUgeDE9IjI5IiB5MT0iMjIiIHgyPSIzMSIgeTI9IjIyIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMiIvPgo8L3N2Zz4K
-```
-
-#### azure-functions.svg
-
-```
-PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij4KICA8IS0tIEF6dXJlIEZ1bmN0aW9uczogbGlnaHRuaW5nIGJvbHQgaW4gaGV4YWdvbiAtLT4KICA8cG9seWdvbiBwb2ludHM9IjI0LDIgNDIsMTMgNDIsMzUgMjQsNDYgNiwzNSA2LDEzIiBmaWxsPSIjMDA3OEQ0Ii8+CiAgPHBhdGggZD0iTTI3IDEwIEwxOSAyNSBMMjYgMjUgTDIxIDM4IEwzMyAyMSBMMjUgMjEgWiIgZmlsbD0iI0ZGRDcwMCIvPgo8L3N2Zz4K
-```
-
-#### azure-sql-database.svg
-
-```
-PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij4KICA8IS0tIEF6dXJlIFNRTCBEYXRhYmFzZTogY3lsaW5kZXIgd2l0aCBTUUwgbGFiZWwgLS0+CiAgPHJlY3QgeD0iOCIgeT0iMTIiIHdpZHRoPSIzMiIgaGVpZ2h0PSIyNCIgZmlsbD0iIzAwNzhENCIvPgogIDxlbGxpcHNlIGN4PSIyNCIgY3k9IjM2IiByeD0iMTYiIHJ5PSI2IiBmaWxsPSIjMDA1QTlFIi8+CiAgPGVsbGlwc2UgY3g9IjI0IiBjeT0iMTIiIHJ4PSIxNiIgcnk9IjYiIGZpbGw9IiM1MEU2RkYiLz4KICA8dGV4dCB4PSIyNCIgeT0iMjgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmYiPlNRTDwvdGV4dD4KPC9zdmc+Cg==
-```
+### 各カスタムアイコンの Base64 エンコード済みデータ
 
 #### github.svg
 
@@ -194,9 +210,9 @@ PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIg
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <!-- アイコン例: style の image= に上記 Base64 を入れる -->
-        <mxCell id="icon1" value="Azure Blob Storage"
-                style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgd2lkdGg9IjQ4IiBoZWlnaHQ9IjQ4Ij4KICA8IS0tIEF6dXJlIEJsb2IgU3RvcmFnZTogc3RvcmFnZSBjb250YWluZXIgd2l0aCBkYXRhIGJsb2NrcyAtLT4KICA8cmVjdCB4PSI4IiB5PSI2IiB3aWR0aD0iMzIiIGhlaWdodD0iMzYiIHJ4PSIzIiByeT0iMyIgZmlsbD0iIzAwNzhENCIvPgogIDxyZWN0IHg9IjEyIiB5PSIxMSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjciIHJ4PSIxIiBmaWxsPSIjNTBFNkZGIi8+CiAgPHJlY3QgeD0iMjYiIHk9IjExIiB3aWR0aD0iMTAiIGhlaWdodD0iNyIgcng9IjEiIGZpbGw9IiM1MEU2RkYiLz4KICA8cmVjdCB4PSIxMiIgeT0iMjIiIHdpZHRoPSIxMCIgaGVpZ2h0PSI3IiByeD0iMSIgZmlsbD0iIzUwRTZGRiIvPgogIDxyZWN0IHg9IjI2IiB5PSIyMiIgd2lkdGg9IjEwIiBoZWlnaHQ9IjciIHJ4PSIxIiBmaWxsPSIjNTBFNkZGIi8+CiAgPHJlY3QgeD0iMTIiIHk9IjMzIiB3aWR0aD0iMTAiIGhlaWdodD0iNSIgcng9IjEiIGZpbGw9IiM1MEU2RkYiIG9wYWNpdHk9IjAuNiIvPgo8L3N2Zz4K;"
+        <!-- Azure アイコン例: style の image= に組み込みシェイプパスを指定 -->
+        <mxCell id="icon1" value="Azure Storage"
+                style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=img/lib/azure2/storage/Storage_Accounts.svg;"
                 vertex="1" parent="1">
           <mxGeometry x="100" y="100" width="48" height="48" as="geometry" />
         </mxCell>
@@ -285,7 +301,8 @@ cp template.drawio output.drawio
 
 ### 2. XML の編集
 
-- アイコンの `image=data:image/svg+xml,{BASE64};` に上記のエンコード済みデータを使用
+- Azure アイコンは `image=img/lib/azure2/{カテゴリ}/{アイコン名}.svg;` で組み込みシェイプを指定
+- カスタムアイコンは `image=data:image/svg+xml,{BASE64};` でエンコード済みデータを使用
 - `<mxGeometry x="" y="" width="" height="">` で位置とサイズを調整
 - `value=""` でラベルテキストを設定
 - `source=""` `target=""` で矢印の接続先を指定
@@ -311,7 +328,7 @@ cp template.drawio output.drawio
 
 | 要素 | 色 | カラーコード |
 |------|-----|-------------|
-| Azure リソース | Azure Blue | `#0078D4` |
+| Azure リソース | （組み込みシェイプの色を使用） | — |
 | GitHub | Dark | `#24292F` |
 | GitHub Actions | Blue | `#2088FF` |
 | Growi | Green | `#1B7D3A` |
@@ -319,6 +336,7 @@ cp template.drawio output.drawio
 | AI（Reckoning） | Purple | `#7C3AED` |
 | 判断の領域 | Light Gray 背景 | `#F7FAFC` |
 | 演算の領域 | Light Purple 背景 | `#F5F3FF` |
+| Azure グループ枠 | Azure Blue | `#0078D4`（strokeColor） |
 
 ### レイアウトのコツ
 
