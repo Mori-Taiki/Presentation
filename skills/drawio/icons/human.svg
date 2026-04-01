@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Human: person silhouette icon -->
+  <!-- Head -->
+  <circle cx="24" cy="12" r="7" fill="#4A5568"/>
+  <!-- Body -->
+  <path d="M12 44 L12 32 C12 25 17 20 24 20 C31 20 36 25 36 32 L36 44 Z" fill="#4A5568"/>
+  <!-- Shoulder line for depth -->
+  <path d="M8 36 C8 27 15 20 24 20 C33 20 40 27 40 36" fill="none" stroke="#4A5568" stroke-width="1"/>
+</svg>
