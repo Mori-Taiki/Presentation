@@ -11,6 +11,28 @@
     - 決定→演算→決定→演算
     - 2つの事例を通じてこのパターンを見ていく
 
+### 今日話すこと — 全体像
+
+品質管理クラウドチームで、AIエージェントを活用して **2つの仕組み** を作った。
+
+```
+┌─────────────────────────────────┐    ┌─────────────────────────────────┐
+│  事例1: ドキュメントパイプライン  │    │  事例2: AIレビューワークフロー    │
+│                                 │    │                                 │
+│  Git上のMarkdown（193ファイル）   │    │  Claude Codeのスキル/エージェント │
+│       ↕ 自動同期                │    │       ↕ 構造化レビュー           │
+│  社内Wiki（GROWI）              │    │  GitHub PR                      │
+│                                 │    │                                 │
+│  「成果物の作り方」を設計した     │    │  「判断の仕方」を構造化した       │
+└─────────────────────────────────┘    └─────────────────────────────────┘
+```
+
+- 事例1は **「ドキュメントが腐る」問題** を解決するためのインフラ
+    - Git を SSOT にし、Wiki との同期を自動化する CLI + GitHub Actions
+- 事例2は **「AIレビューだけでは成長しない」問題** を解決するための仕組み
+    - 9つの専門エージェントが分析し、人間が意思決定を記録するワークフロー
+- どちらも「人間が判断し、AIが演算する」パターンで設計されている
+
 ---
 
 ## 事例1: ドキュメントパイプライン — 「作り方を作る」
@@ -50,23 +72,75 @@
 
 ### 演算: AIに作らせる（Reckoning）
 
-- Claude Codeで **growi-docs CLI** を構築
+#### 作ったもの: ドキュメント管理リポジトリ
+
+```
+kscloud-quality-concrete-docs/
+├── docs/           ← 仕様ドキュメント本体（193ファイル、GROWI同期対象）
+│   ├── products/kscloud/quality-concrete-cloud/
+│   │   ├── specification.md          ← frontmatter で GROWI パスを指定
+│   │   ├── dashboard/
+│   │   └── ...
+│   └── （バージョン別: ver1.01.00 〜 ver202606xx）
+├── meta/           ← 設計メモ・判断の記録
+│   ├── sync-plan.md                  ← 同期パイプライン設計
+│   ├── growi-tooling-migration-plan.md ← CLI再設計計画
+│   └── image-upload-evaluation.md    ← 画像方式5案の評価
+├── tools/          ← growi-docs CLI（TypeScript）
+│   ├── growi-docs.ts                 ← ルーター
+│   └── growi-docs/
+│       ├── commands/  （6コマンド）
+│       └── lib/       （9ユーティリティ）
+└── .github/workflows/
+    ├── docs-validate.yml   ← PR/push時にバリデーション
+    └── sync-to-growi.yml   ← release push で差分同期
+```
+
+- 各 Markdown に **frontmatter** でメタデータを持たせる（設定ファイル不要）
+
+```yaml
+---
+growi_path: /製品/KsCloud/品質管理クラウド/仕様（Git）/ダッシュボード/打設スケジュール
+title: 打設スケジュール
+sync: true
+---
+```
+
+#### 作ったもの: growi-docs CLI
+
+Claude Codeで構築した統合CLIツール。ユースケース駆動で設計。
 
 | コマンド | 機能 |
 |----------|------|
-| `docs:check` | frontmatter検証、パス重複チェック |
-| `docs:publish` | Git→GROWI同期（単体/一括/dry-run） |
-| `docs:import:page` | GROWI→Git取り込み（画像移行込み） |
-| `docs:import:tree` | GROWIツリー一括取り込み |
-| `docs:image:paste` | クリップボード→Blob→Markdownリンク |
-| `docs:image:upload` | ローカル画像→Blob |
-| `fix-permalinks` | ID型リンク→パス型変換 |
+| `docs:check` | frontmatter検証、パス重複チェック、GROWI許可ルートの確認 |
+| `docs:publish` | Git→GROWI同期（`--file` 単体 / `--files-file` 一括 / `--dry-run`） |
+| `docs:import:page` | GROWI→Git取り込み（画像をBlobストレージに自動移行） |
+| `docs:import:tree` | GROWIツリー一括取り込み（source-root / target-root 指定可） |
+| `docs:image:paste` | クリップボード画像→Azure Blob→Markdownリンクをクリップボードへ |
+| `docs:image:upload` | ローカル画像ファイル→Azure Blob |
+| `fix-permalinks` | GROWI ID型リンク→パス型URL変換 + 旧パス一括書換え |
 
-- GitHub Actionsで自動化
-    - `docs-validate.yml`: PR/push時にバリデーション
-    - `sync-to-growi.yml`: releaseブランチへのpushで差分のみ自動同期
-        - スマートdiff検知: growi_path変更を検出して事故防止
-        - 変更がなければスキップ（zero-diff skip）
+- 画像貼り付けはVSCodeショートカット（`Ctrl+Alt+V`）で完結
+
+#### 作ったもの: 自動同期パイプライン
+
+```
+ 開発者が docs/ を編集
+     ↓
+ PR作成 → docs-validate.yml が自動実行
+     │     ・TypeScript型チェック (tsc --noEmit)
+     │     ・frontmatter/パス整合性チェック (docs:check)
+     ↓
+ release ブランチへマージ
+     ↓
+ sync-to-growi.yml が自動実行
+     ・git diff で変更 Markdown を検出
+     ・growi_path の変更を検知 → 事故防止（変更があればfail）
+     ・変更ファイルのみを GROWI に publish
+     ・変更なしなら zero-diff skip
+```
+
+- **冪等な設計**: 再実行しても安全。画像はBlob上のHEADチェックで重複回避、ドキュメントはfrontmatterのgrowi_pathで一意特定
 
 - **CodingAgent前提の段階移行プラン**
     - 「各PhaseはCodingAgentが1つのまとまった変更として実装・検証・ドキュメント更新まで完結できる粒度にする」
@@ -137,6 +211,92 @@
 
 ### 演算: AIに実行させる（Reckoning）
 
+#### 作ったもの: スキル・エージェント体系
+
+```
+.claude/
+├── skills/                        ← 人間が実行するワークフロー定義
+│   ├── self-review/               ← PR著者用：網羅的チェック + 意思決定
+│   │   ├── SKILL.md (370行)
+│   │   └── references/
+│   │       ├── agent-prompt.md    ← エージェントへの指示テンプレート
+│   │       ├── report-format.md   ← レポート出力形式
+│   │       └── decision-format.md ← 意思決定記録の形式
+│   ├── peer-review/               ← レビュワー用：軽量レビュー + 質問形式
+│   ├── diff-navigator/            ← 差分を「なぜ→何を→詳細」で説明
+│   ├── draft-pr/                  ← Issue/Redmineから PR ドラフト起票
+│   ├── edit-pr/                   ← PR本文のセクション更新
+│   └── post-review/               ← GitHub PRにPendingレビュー投稿
+│
+├── agents/                        ← 専門分析を行う9つのエージェント
+│   ├── bug-hunter-frontend.md     ┐
+│   ├── bug-hunter-backend.md      │ FE/BE ペア（各技術スタックに特化）
+│   ├── security-frontend.md       │ → スコープされた差分のみ受け取る
+│   ├── security-backend.md        │   （ノイズを排除）
+│   ├── performance-frontend.md    │
+│   ├── performance-backend.md     ┘
+│   ├── architecture-reviewer.md   ┐
+│   ├── simplicity-reviewer.md     │ クロスカッティング（全差分を受け取る）
+│   └── spec-reviewer.md           ┘
+│
+├── references/                    ← スキル間で共有される知識
+│   ├── review-shared/             ← レビュー系共通
+│   │   ├── context-collection.md  ← コンテキスト構築手順 A-E
+│   │   ├── mappings.md            ← エージェント→カテゴリ、重要度→絵文字
+│   │   ├── diff-partitioning.md   ← 差分サイズ別の分割戦略
+│   │   └── output-validation.md   ← 出力検証・重複除去・失敗ポリシー
+│   └── pr-shared/                 ← PR系共通
+│       ├── issue-redmine.md       ← Issue/Redmineからの意図抽出手順
+│       ├── pr-template.md         ← PR本文テンプレート
+│       └── self-review-embed.md   ← セルフレビュー記録のPR埋め込み
+│
+├── cache/                         ← スキル間で再利用されるキャッシュ
+│   ├── navigation.md              ← diff-navigatorの出力（24h TTL）
+│   └── context.md                 ← Issue/Redmine情報（24h TTL）
+│
+└── reviews/                       ← 実行結果
+    ├── self-review-*.md
+    └── peer-review-*.md
+```
+
+#### エージェントの動かし方
+
+各エージェントには **Role → Scope → Task → Constraints → Context → Output** の構造化プロンプトが渡される。
+
+```
+Role:        "You are a specialist in {CATEGORY}"
+Scope:       レビュー対象のファイルリスト（FE/BEでスコープ）
+Task:        差分を読み、新たに導入された問題を発見する
+Constraints: Read-only、自分の専門領域のみ、コードに基づく推論のみ
+Context:     仕様情報、技術スタック、ブランチ情報、コミットログ、差分
+Output:      JSON配列 [{ severity, category, file, line, title, description, suggestion, confidence }]
+```
+
+- エージェントはコードを変更できない（Read-only: Bash, Read, Grep, Glob のみ）
+- 各エージェントは自分の専門外については何も言わない → 他のエージェントが担当
+
+#### スキル間のデータの流れ
+
+```
+/self-review ──→ .claude/reviews/self-review-*.md（意思決定記録）
+                        │
+                        ↓
+/draft-pr ───→ PR本文に意思決定記録を埋め込む
+                  <!-- peer-review時に参照されます -->
+                        │
+                        ↓
+/peer-review ──→ セルフレビュー記録を読み取り
+                  ✅ 修正済み → スキップ
+                  💬 現状維持 → 理由を確認、必要なら質問
+                  🚫 棄却 → 妥当性を検証
+                        │
+                        ↓
+/post-review ──→ GitHub PR に Pending レビューとして投稿
+                  （手動Submitまで公開されない）
+```
+
+#### ワークフロー全体像
+
 ```
 ┌─ PR著者 ─────────────────────────────────────────┐
 │ 1. 開発・コミット                                  │
@@ -160,7 +320,6 @@
 ```
 
 - 各ステップに「演算（AI）→ 判断（人間）」のループが埋め込まれている
-- エージェントは Read-only（コードを変更しない、分析のみ）
 - 差分サイズに応じたTier戦略（〜1000行: そのまま / 1000-3000: FE/BE分割 / 3000+: 要約+個別読取）
 
 ### 効果
