@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Azure Functions: lightning bolt in hexagon -->
-  <polygon points="24,2 42,13 42,35 24,46 6,35 6,13" fill="#0078D4"/>
-  <path d="M27 10 L19 25 L26 25 L21 38 L33 21 L25 21 Z" fill="#FFD700"/>
-</svg>

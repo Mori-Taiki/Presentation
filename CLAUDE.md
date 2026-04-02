@@ -120,9 +120,20 @@ PYTHONUTF8=1 $PYTHON -m markitdown output.pptx
 
 ## draw.io スキル
 
-詳細は `skills/drawio/SKILL.md` を参照。
+`/drawio` コマンドで `.drawio` ファイルを生成する。詳細は `skills/drawio/SKILL.md` を参照。
 
-- draw.io 図を作成するためのスキル（`.drawio` ファイルは XML ベース）
-- カスタム SVG アイコンを `skills/drawio/icons/` に格納
-- アイコン一覧: Azure（Blob Storage, App Service, Functions, SQL Database）、GitHub、GitHub Actions、Growi、人間、AI エージェント
-- アイコンは Base64 エンコードして draw.io の `style="shape=image;image=data:image/svg+xml,{BASE64};"` で埋め込む
+```
+/drawio フローチャートを作成して
+/drawio png アーキテクチャ図
+/drawio svg: ER図
+```
+
+### リファレンス（skills/drawio/references/）
+
+| ファイル | 内容 |
+|----------|------|
+| `xml-reference.md` | スタイル一覧、エッジルーティング、コンテナ・グループの詳細 |
+| `azure-shapes.md` | Azure 組み込みシェイプライブラリ（`img/lib/azure2/`）の使い方 |
+| `custom-icons.md` | GitHub/GitHub Actions/Growi/Human/AI-Agent の Base64 済みデータ |
+
+カスタム SVG ファイル本体は `skills/drawio/icons/` に格納。

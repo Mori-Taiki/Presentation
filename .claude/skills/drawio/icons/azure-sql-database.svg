@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Azure SQL Database: cylinder with SQL label -->
-  <rect x="8" y="12" width="32" height="24" fill="#0078D4"/>
-  <ellipse cx="24" cy="36" rx="16" ry="6" fill="#005A9E"/>
-  <ellipse cx="24" cy="12" rx="16" ry="6" fill="#50E6FF"/>
-  <text x="24" y="28" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#fff">SQL</text>
-</svg>
