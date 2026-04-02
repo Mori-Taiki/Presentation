@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m markitdown format.pptx)",
+      "Bash(python -m markitdown \"C:\\\\Users\\\\ta-mori\\\\Documents\\\\Repository\\\\quality-concrete-infra\\\\Presentation\\\\format.pptx\")",
+      "Bash(for i:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/ta-mori/Documents/Repository/quality-concrete-infra/Presentation/format_unpacked/ppt/slides/**)",
+      "Bash(done)",
+      "Bash(PYTHON=\"/c/Users/ta-mori/AppData/Roaming/uv/python/cpython-3.12.13-windows-x86_64-none/python.exe\")",
+      "Bash(\"$PYTHON\" --version)",
+      "Read(//c/Users/ta-mori/Documents/Repository/quality-concrete-infra/Presentation PYTHON=.venv/Scripts/python.exe SCRIPTS=/c/Users/ta-mori/.claude/plugins/marketplaces/anthropic-agent-skills/skills/pptx/scripts __NEW_LINE_33d10c1f5b3241f8__ echo === 1. unpack === PYTHONUTF8=1 $PYTHON $SCRIPTS/office/unpack.py format.pptx verify_unpacked/**)",
+      "Bash(1 __NEW_LINE_33d10c1f5b3241f8__ echo \"=== 2. add_slide ===\" PYTHONUTF8=1 $PYTHON $SCRIPTS/add_slide.py verify_unpacked/ slide4.xml 2)",
+      "Bash(1 __NEW_LINE_33d10c1f5b3241f8__ echo \"=== 3. clean ===\" PYTHONUTF8=1 $PYTHON $SCRIPTS/clean.py verify_unpacked/ 2)",
+      "Bash(1 __NEW_LINE_33d10c1f5b3241f8__ echo \"=== 4. pack ===\" PYTHONUTF8=1 $PYTHON $SCRIPTS/office/pack.py verify_unpacked/ verify_out.pptx --original format.pptx 2)",
+      "Bash(1 __NEW_LINE_33d10c1f5b3241f8__ echo \"=== 5. markitdown ===\" PYTHONUTF8=1 $PYTHON -m markitdown verify_out.pptx)",
+      "Bash(PYTHONUTF8=1 .venv/Scripts/python.exe TechMeeting202604/write_slides.py)",
+      "Bash(PYTHONUTF8=1 .venv/Scripts/python.exe /c/Users/ta-mori/.claude/plugins/marketplaces/anthropic-agent-skills/skills/pptx/scripts/clean.py TechMeeting202604/techmeeting20260406_unpacked/)",
+      "Bash(PYTHONUTF8=1 .venv/Scripts/python.exe /c/Users/ta-mori/.claude/plugins/marketplaces/anthropic-agent-skills/skills/pptx/scripts/office/pack.py TechMeeting202604/techmeeting20260406_unpacked/ TechMeeting202604/techmeeting20260406.pptx --original format.pptx 2>&1)"
+    ]
+  }
+}
