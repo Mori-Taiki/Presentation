@@ -5,6 +5,15 @@
 - 品質管理クラウドチームでの AI エージェント（Claude Code / Copilot CLI）活用について話す
 - 単なる「便利ツール紹介」ではなく、**AI時代に仕事をどう設計するか** がテーマ
 - 枠組み: **Brian Cantwell Smith** の「**Reckoning**（演算）」と「**Judgment**（判断）」
+    - Smith は **計算の哲学・AI哲学・認知科学** を横断する研究者（1950–2025）
+        - MIT で博士号を取得し、世界初のリフレクティブ（自己反映型）プログラミング言語 **3-Lisp** を開発
+        - Stanford 大学で **CSLI（言語情報研究センター）** を共同設立し、言語・計算・哲学の学際研究を牽引
+        - **Computer Professionals for Social Responsibility（CPSR）** の初代会長として、テクノロジーの社会的責任を早くから提唱
+        - トロント大学情報学部の学部長を務め、同学部を世界的な iSchool へ変革。晩年は **Reid Hoffman Chair in Artificial Intelligence and the Human** を保持
+        - 主著に *On the Origin of Objects*（1996）、***The Promise of Artificial Intelligence: Reckoning and Judgment***（2019, MIT Press）など
+    - LinkedIn 共同創業者 **Reid Hoffman** は Stanford 時代に Smith の「AIの哲学」講義を受け、深い影響を受けた人物の一人
+        - Hoffman は後にトロント大学へ **245万ドルの寄付** を行い、Smith の名を冠した寄附講座を設立した
+        - HCI/AI 分野の権威 **Terry Winograd**（Stanford）も Smith と長年にわたる学術的対話を行った協力者として知られる
     - この発表では、Smith の議論を開発実務向けにややラフに使う
     - Judgment = 何を問うか・何を採るかを引き受けること
     - Reckoning = 与えられた条件で広く計算すること

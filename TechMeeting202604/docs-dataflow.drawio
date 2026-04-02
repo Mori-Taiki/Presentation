@@ -1,79 +1,82 @@
-<?xml version='1.0' encoding='utf-8'?>
-<mxGraphModel adaptiveColors="auto">
-  <root>
-    <mxCell id="0" />
-    <mxCell id="1" parent="0" />
-    <mxCell id="n1" value="growi-docs CLI 主要データフロー" style="text;html=1;fontSize=18;fontStyle=1;align=center;" vertex="1" parent="1">
-      <mxGeometry x="200" y="10" width="500" height="35" as="geometry" />
-    </mxCell>
-    <mxCell id="n2" value="Publish（Git → GROWI）" style="text;html=1;fontSize=13;fontStyle=5;fontColor=#1B7D3A;" vertex="1" parent="1">
-      <mxGeometry x="40" y="75" width="280" height="25" as="geometry" />
-    </mxCell>
-    <mxCell id="n3" value="docs/*.md" style="shape=document;whiteSpace=wrap;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" vertex="1" parent="1">
-      <mxGeometry x="60" y="115" width="170" height="60" as="geometry" />
-    </mxCell>
-    <mxCell id="n4" value="docs:publish" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="360" y="120" width="170" height="50" as="geometry" />
-    </mxCell>
-    <mxCell id="n5" value="GROWI" style="shape=document;whiteSpace=wrap;fillColor=#1B7D3A;strokeColor=#155C2B;fontColor=#fff;fontSize=14;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="680" y="115" width="160" height="60" as="geometry" />
-    </mxCell>
-    <mxCell id="n6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#1B7D3A;" edge="1" source="n3" target="n4" parent="1">
-      <mxGeometry relative="1" as="geometry" />
-    </mxCell>
-    <mxCell id="n7" value="API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#1B7D3A;fontColor=#155C2B;" edge="1" source="n4" target="n5" parent="1">
-      <mxGeometry relative="1" as="geometry" />
-    </mxCell>
-    <mxCell id="n8" value="Import（GROWI → Git）" style="text;html=1;fontSize=13;fontStyle=5;fontColor=#336699;" vertex="1" parent="1">
-      <mxGeometry x="40" y="230" width="280" height="25" as="geometry" />
-    </mxCell>
-    <mxCell id="n9" value="GROWI" style="shape=document;whiteSpace=wrap;fillColor=#1B7D3A;strokeColor=#155C2B;fontColor=#fff;fontSize=14;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="680" y="270" width="160" height="60" as="geometry" />
-    </mxCell>
-    <mxCell id="n10" value="docs:import" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="360" y="275" width="170" height="50" as="geometry" />
-    </mxCell>
-    <mxCell id="n11" value="docs/*.md" style="shape=document;whiteSpace=wrap;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" vertex="1" parent="1">
-      <mxGeometry x="60" y="270" width="170" height="60" as="geometry" />
-    </mxCell>
-    <mxCell id="n12" value="Azure Blob" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=img/lib/azure2/storage/Storage_Accounts.svg;fontSize=11;" vertex="1" parent="1">
-      <mxGeometry x="422" y="375" width="52" height="52" as="geometry" />
-    </mxCell>
-    <mxCell id="n13" value="API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#6C8EBF;fontColor=#336699;" edge="1" source="n9" target="n10" parent="1">
-      <mxGeometry relative="1" as="geometry" />
-    </mxCell>
-    <mxCell id="n14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#6C8EBF;" edge="1" source="n10" target="n11" parent="1">
-      <mxGeometry relative="1" as="geometry" />
-    </mxCell>
-    <mxCell id="n15" value="画像を自動移行" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;dashed=1;strokeColor=#9673A6;fontColor=#663399;fontSize=9;" edge="1" source="n10" target="n12" parent="1">
-      <mxGeometry relative="1" as="geometry" />
-    </mxCell>
-    <mxCell id="n16" value="Image（画像アップロード）" style="text;html=1;fontSize=13;fontStyle=5;fontColor=#663399;" vertex="1" parent="1">
-      <mxGeometry x="40" y="460" width="280" height="25" as="geometry" />
-    </mxCell>
-    <mxCell id="n17" value="クリップボード&#10;or ファイル" style="rounded=1;whiteSpace=wrap;fillColor=#E6F2FF;strokeColor=#6C8EBF;fontSize=13;" vertex="1" parent="1">
-      <mxGeometry x="60" y="500" width="170" height="55" as="geometry" />
-    </mxCell>
-    <mxCell id="n18" value="docs:image:paste" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
-      <mxGeometry x="360" y="505" width="170" height="50" as="geometry" />
-    </mxCell>
-    <mxCell id="n19" value="Azure Blob" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=img/lib/azure2/storage/Storage_Accounts.svg;fontSize=11;" vertex="1" parent="1">
-      <mxGeometry x="660" y="500" width="52" height="52" as="geometry" />
-    </mxCell>
-    <mxCell id="n20" value="![](URL)&#10;をクリップボードへ" style="rounded=1;whiteSpace=wrap;fillColor=#E6F2FF;strokeColor=#6C8EBF;fontSize=10;" vertex="1" parent="1">
-      <mxGeometry x="360" y="600" width="170" height="45" as="geometry" />
-    </mxCell>
-    <mxCell id="n21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#9673A6;" edge="1" source="n17" target="n18" parent="1">
-      <mxGeometry relative="1" as="geometry" />
-    </mxCell>
-    <mxCell id="n22" value="Blob へ保存" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#9673A6;fontColor=#663399;" edge="1" source="n18" target="n19" parent="1">
-      <mxGeometry relative="1" as="geometry" />
-    </mxCell>
-    <mxCell id="n23" value="URL 返却" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;dashed=1;strokeColor=#9673A6;fontColor=#663399;exitX=0.5;exitY=1;" edge="1" source="n18" target="n20" parent="1">
-      <mxGeometry relative="1" as="geometry" />
-    </mxCell>
-    <mxCell id="n24" value="VS Code: Ctrl+Alt+V で実行可能" style="text;html=1;fontSize=10;fontColor=#888;align=center;fontStyle=2;" vertex="1" parent="1">
-      <mxGeometry x="60" y="570" width="220" height="20" as="geometry" />
-    </mxCell>
-  </root>
-</mxGraphModel>
+<mxfile host="65bd71144e">
+    <diagram id="FoaOXt7osaH29Ms6tUHk" name="ページ1">
+        <mxGraphModel dx="483" dy="779" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0" adaptiveColors="auto">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="n1" value="growi-docs CLI 主要データフロー" style="text;html=1;fontSize=18;fontStyle=1;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="200" y="10" width="500" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="n2" value="Publish（Git → GROWI）" style="text;html=1;fontSize=13;fontStyle=5;fontColor=#1B7D3A;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="75" width="280" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="n3" value="docs/*.md" style="shape=document;whiteSpace=wrap;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="115" width="170" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="n4" value="docs:publish" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="120" width="170" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="n5" value="GROWI" style="shape=document;whiteSpace=wrap;fillColor=#1B7D3A;strokeColor=#155C2B;fontColor=#fff;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="680" y="115" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="n6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#1B7D3A;" parent="1" source="n3" target="n4" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="n7" value="API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#1B7D3A;fontColor=#155C2B;" parent="1" source="n4" target="n5" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="n8" value="Import（GROWI → Git）" style="text;html=1;fontSize=13;fontStyle=5;fontColor=#336699;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="230" width="280" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="n9" value="GROWI" style="shape=document;whiteSpace=wrap;fillColor=#1B7D3A;strokeColor=#155C2B;fontColor=#fff;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="680" y="270" width="160" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="n10" value="docs:import" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="275" width="170" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="n11" value="docs/*.md" style="shape=document;whiteSpace=wrap;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=13;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="270" width="170" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="n12" value="Azure Blob" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=img/lib/azure2/storage/Storage_Accounts.svg;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="422" y="375" width="52" height="52" as="geometry"/>
+                </mxCell>
+                <mxCell id="n13" value="API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#6C8EBF;fontColor=#336699;" parent="1" source="n9" target="n10" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="n14" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#6C8EBF;" parent="1" source="n10" target="n11" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="n15" value="画像を自動移行" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;dashed=1;strokeColor=#9673A6;fontColor=#663399;fontSize=9;" parent="1" source="n10" target="n12" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="n16" value="Image（画像アップロード）" style="text;html=1;fontSize=13;fontStyle=5;fontColor=#663399;" parent="1" vertex="1">
+                    <mxGeometry x="40" y="460" width="280" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="n17" value="クリップボードにある画像&#xa;or ファイル" style="rounded=1;whiteSpace=wrap;fillColor=#E6F2FF;strokeColor=#6C8EBF;fontSize=13;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="500" width="170" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="n18" value="docs:image:paste&#xa;ショートカットキーで&#xa;呼び出せる" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="505" width="170" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="n19" value="Azure Blob" style="shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;verticalAlign=top;aspect=fixed;imageAspect=0;image=img/lib/azure2/storage/Storage_Accounts.svg;fontSize=11;" parent="1" vertex="1">
+                    <mxGeometry x="660" y="500" width="52" height="52" as="geometry"/>
+                </mxCell>
+                <mxCell id="n20" value="&lt;img src=&quot;${url}&quot; width=&quot;100%&quot; height=&quot;100%&quot;/&gt;&#xa;をクリップボードへ" style="rounded=1;whiteSpace=wrap;fillColor=#E6F2FF;strokeColor=#6C8EBF;fontSize=10;" parent="1" vertex="1">
+                    <mxGeometry x="360" y="600" width="170" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="n21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#9673A6;" parent="1" source="n17" target="n18" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="n22" value="Blob へ保存" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;strokeWidth=2;strokeColor=#9673A6;fontColor=#663399;" parent="1" source="n18" target="n19" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="n23" value="URL 返却" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;fontSize=10;dashed=1;strokeColor=#9673A6;fontColor=#663399;exitX=0.5;exitY=1;" parent="1" source="n18" target="n20" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="n24" value="VS Code: Ctrl+Alt+V で実行可能" style="text;html=1;fontSize=10;fontColor=#888;align=center;fontStyle=2;" parent="1" vertex="1">
+                    <mxGeometry x="60" y="570" width="220" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
