@@ -60,16 +60,18 @@ Claude Code のスキル・エージェント機構を活用した、**AI マル
 
 ### システム詳細
 
-以下の図は、エージェント構成・diff スコープ分離・Workspace 管理の詳細を示す。
+以下の図は、レビュー系 skill / shell が **何を input にし、何を output として Workspace や GitHub に渡すのか** を含めた詳細フローを示す。
 
 <!-- review-system-detail.drawio の画像をここに差し込む -->
 ![レビューシステム詳細構成](review-system-detail.drawio.png)
 
-**主要アーキテクチャ**:
+**この図で読み取れること**:
 
-- **9 専門エージェント** が FE / BE / 横断的に分離され、それぞれのスコープの diff のみを受け取る
-- **Workspace（Filesystem as State）** パターンで各ステップの出力をファイルとして保存し、中断しても再開可能
-- **PowerShell スクリプト** で差分統計・技術スタック検出・diff 分割などの確定的処理をオフロード
+- `/self-review` は **仕様コンテキスト + diff** を input にし、`decisions.md` と `self-review-report.md` を output する
+- `/peer-review` は **PR body + shared workspace** を input にし、`selected-comments.md/.json` と `peer-review-report.md` を output する
+- `workspace-init.ps1` / `collect-diff-stats.ps1` / `partition-diff.ps1` / `post-review.ps1` は、それぞれ **box 内に input / output を明記** している
+- 右側の Workspace 一覧で、各 artifact について **誰が保存し、次に誰が読むか** を追える
+- `decisions.md → PR body → peer-review → selected-comments.json → /post-review`
 
 ---
 
