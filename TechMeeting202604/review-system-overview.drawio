@@ -1,0 +1,97 @@
+<mxfile host="65bd71144e">
+    <diagram id="review-overview" name="概要">
+        <mxGraphModel dx="1100" dy="680" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="650" math="0" shadow="0" adaptiveColors="auto">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="title" value="レビューワークフロー 概要" style="text;html=1;fontSize=18;fontStyle=1;align=center;" vertex="1" parent="1">
+                    <mxGeometry x="300" y="10" width="500" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="zone-author" value="" style="rounded=1;whiteSpace=wrap;fillColor=#E3F2FD;strokeColor=#6C8EBF;strokeWidth=2;opacity=50;pointerEvents=0;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="55" width="800" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="zone-author-label" value="Author ワークフロー" style="text;html=1;fontSize=12;fontStyle=1;fontColor=#336699;align=left;verticalAlign=middle;pointerEvents=0;" vertex="1" parent="1">
+                    <mxGeometry x="55" y="59" width="200" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="author" value="Author" style="shape=actor;whiteSpace=wrap;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="75" y="100" width="40" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="self-review" value="/self-review" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="200" y="100" width="150" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="decision" value="意思決定&#xa;fix / maintain&#xa;defer / reject" style="rhombus;whiteSpace=wrap;fillColor=#DAE8FC;strokeColor=#6C8EBF;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="425" y="80" width="115" height="95" as="geometry"/>
+                </mxCell>
+                <mxCell id="draft-pr" value="/draft-pr" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="620" y="100" width="150" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="github-pr" value="GitHub PR" style="rounded=1;whiteSpace=wrap;fillColor=#F0F2F5;strokeColor=#24292F;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="890" y="180" width="150" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="zone-reviewer" value="" style="rounded=1;whiteSpace=wrap;fillColor=#E8F5E9;strokeColor=#82B366;strokeWidth=2;opacity=50;pointerEvents=0;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="260" width="800" height="155" as="geometry"/>
+                </mxCell>
+                <mxCell id="zone-reviewer-label" value="Reviewer ワークフロー" style="text;html=1;fontSize=12;fontStyle=1;fontColor=#2E7D32;align=left;verticalAlign=middle;pointerEvents=0;" vertex="1" parent="1">
+                    <mxGeometry x="55" y="264" width="200" height="25" as="geometry"/>
+                </mxCell>
+                <mxCell id="reviewer" value="Reviewer" style="shape=actor;whiteSpace=wrap;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="75" y="305" width="40" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="diff-nav" value="/diff-navigator" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="200" y="305" width="150" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="peer-review" value="/peer-review" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="440" y="305" width="150" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="post-review" value="/post-review" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=13;fontStyle=1;" vertex="1" parent="1">
+                    <mxGeometry x="680" y="305" width="150" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="edit-pr" value="/edit-pr" style="rounded=1;whiteSpace=wrap;fillColor=#FFF2CC;strokeColor=#D6B656;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="620" y="455" width="150" height="45" as="geometry"/>
+                </mxCell>
+                <mxCell id="note1" value="著者の判断記録が PR Body に埋め込まれ、&#xa;レビュアーは既検討の指摘を自動フィルタリングできる" style="text;html=1;fontSize=10;fontColor=#666;align=left;fontStyle=2;" vertex="1" parent="1">
+                    <mxGeometry x="50" y="455" width="380" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-skill" value="黄: Claude Code スキル" style="text;html=1;fontSize=9;fontColor=#996633;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="50" y="510" width="180" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-judgment" value="青◆: 人間の判断ポイント" style="text;html=1;fontSize=9;fontColor=#336699;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="250" y="510" width="180" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="legend-cross" value="紫破線: セルフレビュー記録の流れ" style="text;html=1;fontSize=9;fontColor=#663399;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="450" y="510" width="250" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeWidth=2;strokeColor=#6C8EBF;" edge="1" parent="1" source="author" target="self-review">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeWidth=2;strokeColor=#6C8EBF;" edge="1" parent="1" source="self-review" target="decision">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeWidth=2;strokeColor=#6C8EBF;" edge="1" parent="1" source="decision" target="draft-pr">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e4" value="PR作成" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeWidth=2;strokeColor=#6C8EBF;fontSize=10;fontColor=#336699;" edge="1" parent="1" source="draft-pr" target="github-pr">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeWidth=2;strokeColor=#82B366;" edge="1" parent="1" source="reviewer" target="diff-nav">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeWidth=2;strokeColor=#82B366;" edge="1" parent="1" source="diff-nav" target="peer-review">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeWidth=2;strokeColor=#82B366;" edge="1" parent="1" source="peer-review" target="post-review">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e8" value="Pending Review" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;strokeWidth=2;strokeColor=#82B366;fontSize=10;fontColor=#2E7D32;" edge="1" parent="1" source="post-review" target="github-pr">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e9" value="self-review記録" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeWidth=2;strokeColor=#9673A6;fontSize=10;fontColor=#663399;" edge="1" parent="1" source="github-pr" target="peer-review">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e10" value="PR更新" style="edgeStyle=orthogonalEdgeStyle;rounded=1;jettySize=auto;dashed=1;strokeWidth=1;strokeColor=#D6B656;fontSize=10;fontColor=#996633;" edge="1" parent="1" source="edit-pr" target="github-pr">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
